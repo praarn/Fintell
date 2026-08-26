@@ -9,6 +9,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.core.database import Base
 
 if TYPE_CHECKING:
+    from app.models.account import Account
     from app.models.bank_profile import BankProfile
     from app.models.user import User
 
@@ -19,6 +20,12 @@ class Statement(Base):
     id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     user_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
+    )
+    account_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("accounts.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
     )
     bank_hint: Mapped[str | None] = mapped_column(String(255), nullable=True)
     bank_profile_id: Mapped[uuid.UUID | None] = mapped_column(
@@ -51,3 +58,4 @@ class Statement(Base):
 
     user: Mapped["User"] = relationship()
     bank_profile: Mapped["BankProfile | None"] = relationship()
+    account: Mapped["Account | None"] = relationship()

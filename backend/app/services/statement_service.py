@@ -1,7 +1,7 @@
 import uuid
 from pathlib import Path
 
-from sqlalchemy import func, select
+from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import get_settings
@@ -9,6 +9,7 @@ from app.models.bank_profile import BankProfile
 from app.models.parse_failure import ParseFailure
 from app.models.statement import Statement
 from app.models.transaction import Transaction
+from app.services import account_service
 from app.services.categorization.service import categorize_statement_transactions
 from app.services.categorization.tier3 import categorize_statement_transactions_via_llm
 from app.services.parsing.pipeline import parse_statement
@@ -31,14 +32,28 @@ async def upload_and_parse_statement(
     original_filename: str,
     file_bytes: bytes,
     bank_hint: str | None,
+    account_id: uuid.UUID | None = None,
 ) -> Statement:
     """Stores the raw file locally (plaintext — encryption/signed URLs are
     Phase 8) and runs the full pipeline synchronously: Tier 1 (parsing),
     Tier 2 (rule/fuzzy-match categorization), then Tier 3 (batched LLM
     fallback for whatever's still unresolved).
+
+    Account linking: an explicit account_id is validated and used as-is;
+    otherwise a bank_hint auto-provisions a lightweight account (keeps
+    older upload calls, and tests, working without requiring the
+    account-creation UI first); with neither, the statement is unlinked.
     """
+    if account_id is not None:
+        account = await account_service.get_owned_account(db, user_id, account_id)
+    elif bank_hint:
+        account = await account_service.get_or_create_account_for_bank_hint(db, user_id, bank_hint)
+    else:
+        account = None
+
     statement = Statement(
         user_id=user_id,
+        account_id=account.id if account else None,
         bank_hint=bank_hint,
         original_filename=original_filename,
         file_path="",
@@ -55,6 +70,15 @@ async def upload_and_parse_statement(
     await db.commit()
 
     await parse_statement(db, statement, file_bytes)
+
+    if account is not None:
+        await db.execute(
+            update(Transaction)
+            .where(Transaction.statement_id == statement.id)
+            .values(account_id=account.id)
+        )
+        await db.commit()
+
     await categorize_statement_transactions(db, statement.id)
     await categorize_statement_transactions_via_llm(db, statement.id)
     await db.refresh(statement)

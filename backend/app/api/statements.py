@@ -8,7 +8,7 @@ from app.core.config import get_settings
 from app.core.database import get_db
 from app.models.user import User
 from app.schemas.statement import ParseFailureOut, StatementOut, StatementStatsOut, TransactionOut
-from app.services import statement_service
+from app.services import account_service, statement_service, transaction_service
 
 router = APIRouter(prefix="/statements", tags=["statements"])
 settings = get_settings()
@@ -18,6 +18,7 @@ settings = get_settings()
 async def upload_statement(
     file: UploadFile = File(...),
     bank_hint: str | None = Form(None),
+    account_id: uuid.UUID | None = Form(None),
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> StatementOut:
@@ -28,9 +29,12 @@ async def upload_statement(
     if len(file_bytes) > settings.max_upload_size_bytes:
         raise HTTPException(status_code=413, detail="File exceeds the maximum upload size")
 
-    return await statement_service.upload_and_parse_statement(
-        db, current_user.id, file.filename, file_bytes, bank_hint
-    )
+    try:
+        return await statement_service.upload_and_parse_statement(
+            db, current_user.id, file.filename, file_bytes, bank_hint, account_id
+        )
+    except account_service.AccountNotFoundError as exc:
+        raise HTTPException(status_code=404, detail="Account not found") from exc
 
 
 @router.get("", response_model=list[StatementOut])
@@ -66,9 +70,19 @@ async def get_statement_transactions(
     db: AsyncSession = Depends(get_db),
 ) -> list[TransactionOut]:
     try:
-        return await statement_service.list_transactions(db, current_user.id, statement_id)
+        transactions = await statement_service.list_transactions(db, current_user.id, statement_id)
     except statement_service.StatementNotFoundError as exc:
         raise HTTPException(status_code=404, detail="Statement not found") from exc
+
+    split_ids = await transaction_service.get_split_transaction_ids(
+        db, [t.id for t in transactions]
+    )
+    items = []
+    for t in transactions:
+        item = TransactionOut.model_validate(t)
+        item.is_split = t.id in split_ids
+        items.append(item)
+    return items
 
 
 @router.get("/{statement_id}/parse-failures", response_model=list[ParseFailureOut])

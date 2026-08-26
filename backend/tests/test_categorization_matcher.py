@@ -55,3 +55,13 @@ def test_empty_cleaned_string_never_matches() -> None:
     rows = [_row("starbucks", "Starbucks", "dining")]
     matcher = MerchantMatcher(rows, confidence_threshold=0.75)
     assert matcher.match("") is None
+
+
+def test_short_seed_pattern_does_not_false_positive_on_substring() -> None:
+    # Regression: WRatio's partial-ratio component scored "grocery mart" vs
+    # "bart" at 77 (character-substring illusion via "...mart" containing
+    # "art"), which cleared the default 0.75 threshold and mis-tagged a
+    # grocery purchase as transit. token_set_ratio scores this ~37.5.
+    rows = [_row("bart", "Bart", "transit")]
+    matcher = MerchantMatcher(rows, confidence_threshold=0.75)
+    assert matcher.match("grocery mart") is None

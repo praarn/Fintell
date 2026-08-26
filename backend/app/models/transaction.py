@@ -33,6 +33,14 @@ class Transaction(Base):
     user_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True
     )
+    # Denormalized from statements.account_id (same rationale as user_id
+    # above) so account-scoped queries don't need a join.
+    account_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("accounts.id", ondelete="SET NULL"),
+        nullable=True,
+        index=True,
+    )
 
     raw_merchant: Mapped[str] = mapped_column(Text, nullable=False)
     normalized_merchant: Mapped[str | None] = mapped_column(String(255), nullable=True)

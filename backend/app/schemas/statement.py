@@ -9,6 +9,7 @@ class StatementOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: uuid.UUID
+    account_id: uuid.UUID | None
     original_filename: str
     file_type: str
     detected_structure: str | None
@@ -27,6 +28,7 @@ class TransactionOut(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: uuid.UUID
+    account_id: uuid.UUID | None
     raw_merchant: str
     normalized_merchant: str | None
     category: str | None
@@ -36,6 +38,7 @@ class TransactionOut(BaseModel):
     date: date
     running_balance: Decimal | None
     row_index: int | None
+    is_split: bool = False
 
 
 class ParseFailureOut(BaseModel):

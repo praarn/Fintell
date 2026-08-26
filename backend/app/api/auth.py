@@ -76,6 +76,11 @@ async def logout(payload: RefreshRequest, db: AsyncSession = Depends(get_db)) ->
     await auth_service.logout(db, payload.refresh_token)
 
 
+@router.get("/me", response_model=UserRead)
+async def get_current_user_info(current_user: User = Depends(get_current_user)) -> User:
+    return current_user
+
+
 @router.get("/sessions", response_model=list[SessionOut])
 async def list_sessions(
     current_user: User = Depends(get_current_user),

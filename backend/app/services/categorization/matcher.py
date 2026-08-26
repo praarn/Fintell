@@ -45,7 +45,13 @@ class MerchantMatcher:
             return None
 
         choices = {row.id: row.raw_pattern for row in self._rows}
-        result = process.extractOne(cleaned, choices, scorer=fuzz.WRatio)
+        # token_set_ratio, not WRatio: merchant strings frequently carry
+        # extra tokens (city, POS codes) around the real name, and
+        # WRatio's partial-ratio component false-positives badly on short
+        # seed patterns — e.g. "grocery mart" vs "bart" scores 77 under
+        # WRatio (character-substring illusion) but 37.5 under
+        # token_set_ratio, which compares token sets instead.
+        result = process.extractOne(cleaned, choices, scorer=fuzz.token_set_ratio)
         if result is None:
             return None
 

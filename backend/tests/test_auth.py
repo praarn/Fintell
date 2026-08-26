@@ -190,3 +190,18 @@ async def test_revoke_session_rejects_other_users_session(client: AsyncClient) -
         headers={"Authorization": f"Bearer {bob_tokens['access_token']}"},
     )
     assert response.status_code == 404
+
+
+async def test_get_current_user_info(client: AsyncClient) -> None:
+    tokens = await _register_and_login(client)
+    response = await client.get(
+        "/auth/me", headers={"Authorization": f"Bearer {tokens['access_token']}"}
+    )
+    assert response.status_code == 200
+    body = response.json()
+    assert body["email"] == EMAIL
+    assert "hashed_password" not in body
+
+
+async def test_get_current_user_info_requires_auth(client: AsyncClient) -> None:
+    assert (await client.get("/auth/me")).status_code == 401

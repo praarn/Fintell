@@ -40,6 +40,9 @@ class Settings(BaseSettings):
     llm_cost_per_1k_completion_tokens: float = 0.0006
     llm_promotion_min_occurrences: int = 3
 
+    # CORS: the frontend origin allowed to call this API with credentials.
+    frontend_origin: str = "http://localhost:3000"
+
 
 @lru_cache
 def get_settings() -> Settings:
