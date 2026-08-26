@@ -10,6 +10,7 @@ from app.models.parse_failure import ParseFailure
 from app.models.statement import Statement
 from app.models.transaction import Transaction
 from app.services.categorization.service import categorize_statement_transactions
+from app.services.categorization.tier3 import categorize_statement_transactions_via_llm
 from app.services.parsing.pipeline import parse_statement
 
 settings = get_settings()
@@ -32,8 +33,9 @@ async def upload_and_parse_statement(
     bank_hint: str | None,
 ) -> Statement:
     """Stores the raw file locally (plaintext — encryption/signed URLs are
-    Phase 8) and runs the Tier 1 (parsing) then Tier 2 (rule/fuzzy-match
-    categorization) pipeline against it synchronously.
+    Phase 8) and runs the full pipeline synchronously: Tier 1 (parsing),
+    Tier 2 (rule/fuzzy-match categorization), then Tier 3 (batched LLM
+    fallback for whatever's still unresolved).
     """
     statement = Statement(
         user_id=user_id,
@@ -54,6 +56,7 @@ async def upload_and_parse_statement(
 
     await parse_statement(db, statement, file_bytes)
     await categorize_statement_transactions(db, statement.id)
+    await categorize_statement_transactions_via_llm(db, statement.id)
     await db.refresh(statement)
     return statement
 

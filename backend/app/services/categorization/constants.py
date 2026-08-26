@@ -1,3 +1,5 @@
+from typing import Literal
+
 CATEGORIES = [
     "groceries",
     "dining",
@@ -14,6 +16,8 @@ CATEGORIES = [
     "fees",
     "other",
 ]
+
+CategoryLiteral = Literal[*CATEGORIES]  # type: ignore[valid-type]
 
 # How a transaction was categorized — the auditability story. `None` means
 # genuinely unresolved at Tier 1/2 (a Tier 3 LLM call, added in Phase 4,

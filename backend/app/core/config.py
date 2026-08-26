@@ -31,6 +31,15 @@ class Settings(BaseSettings):
     pdf_structure_detection_page_sample: int = 3
     ocr_min_confidence: float = 40.0
 
+    # Tier 3 LLM categorization fallback
+    llm_max_batch_size: int = 20
+    llm_request_timeout_seconds: float = 30.0
+    # Approximate, provider-agnostic defaults (roughly gpt-4o-mini-era pricing) —
+    # override to match whatever OpenAI-compatible model is actually configured.
+    llm_cost_per_1k_prompt_tokens: float = 0.00015
+    llm_cost_per_1k_completion_tokens: float = 0.0006
+    llm_promotion_min_occurrences: int = 3
+
 
 @lru_cache
 def get_settings() -> Settings:
