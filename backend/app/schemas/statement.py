@@ -28,6 +28,10 @@ class TransactionOut(BaseModel):
 
     id: uuid.UUID
     raw_merchant: str
+    normalized_merchant: str | None
+    category: str | None
+    categorization_method: str | None
+    confidence: Decimal | None
     amount: Decimal
     date: date
     running_balance: Decimal | None
