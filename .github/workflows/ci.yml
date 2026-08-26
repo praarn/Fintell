@@ -29,7 +29,7 @@ jobs:
 
     env:
       DATABASE_URL: postgresql+asyncpg://finance:finance@localhost:5432/finance
-      JWT_SECRET_KEY: ci-test-secret
+      JWT_SECRET_KEY: ci-test-secret-key-thats-long-enough-for-hs256-hmac
 
     steps:
       - uses: actions/checkout@v4

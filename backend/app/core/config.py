@@ -11,7 +11,7 @@ class Settings(BaseSettings):
 
     database_url: str = "postgresql+asyncpg://finance:finance@localhost:5432/finance"
 
-    jwt_secret_key: str = "dev-secret-change-me"
+    jwt_secret_key: str = "dev-secret-change-me-please-this-is-not-secure-at-all"
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 15
     refresh_token_expire_days: int = 30
