@@ -1,0 +1,144 @@
+import uuid
+from pathlib import Path
+
+from sqlalchemy import func, select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.core.config import get_settings
+from app.models.bank_profile import BankProfile
+from app.models.parse_failure import ParseFailure
+from app.models.statement import Statement
+from app.models.transaction import Transaction
+from app.services.parsing.pipeline import parse_statement
+
+settings = get_settings()
+
+
+class StatementNotFoundError(Exception):
+    pass
+
+
+def _extension_for(filename: str) -> str:
+    suffix = Path(filename).suffix.lower()
+    return suffix if suffix in (".csv", ".pdf") else ""
+
+
+async def upload_and_parse_statement(
+    db: AsyncSession,
+    user_id: uuid.UUID,
+    original_filename: str,
+    file_bytes: bytes,
+    bank_hint: str | None,
+) -> Statement:
+    """Stores the raw file locally (plaintext — encryption/signed URLs are
+    Phase 8) and runs the Tier 1 pipeline against it synchronously.
+    """
+    statement = Statement(
+        user_id=user_id,
+        bank_hint=bank_hint,
+        original_filename=original_filename,
+        file_path="",
+        file_type="unknown",
+    )
+    db.add(statement)
+    await db.flush()  # assigns statement.id without committing yet
+
+    storage_dir = Path(settings.upload_storage_dir) / str(user_id)
+    storage_dir.mkdir(parents=True, exist_ok=True)
+    file_path = storage_dir / f"{statement.id}{_extension_for(original_filename)}"
+    file_path.write_bytes(file_bytes)
+    statement.file_path = str(file_path)
+    await db.commit()
+
+    await parse_statement(db, statement, file_bytes)
+    await db.refresh(statement)
+    return statement
+
+
+async def get_owned_statement(
+    db: AsyncSession, user_id: uuid.UUID, statement_id: uuid.UUID
+) -> Statement:
+    statement = await db.scalar(
+        select(Statement).where(Statement.id == statement_id, Statement.user_id == user_id)
+    )
+    if statement is None:
+        raise StatementNotFoundError(str(statement_id))
+    return statement
+
+
+async def list_statements(db: AsyncSession, user_id: uuid.UUID) -> list[Statement]:
+    result = await db.scalars(
+        select(Statement).where(Statement.user_id == user_id).order_by(Statement.uploaded_at.desc())
+    )
+    return list(result)
+
+
+async def list_transactions(
+    db: AsyncSession, user_id: uuid.UUID, statement_id: uuid.UUID
+) -> list[Transaction]:
+    await get_owned_statement(db, user_id, statement_id)
+    result = await db.scalars(
+        select(Transaction)
+        .where(Transaction.statement_id == statement_id, Transaction.user_id == user_id)
+        .order_by(Transaction.row_index)
+    )
+    return list(result)
+
+
+async def list_parse_failures(
+    db: AsyncSession, user_id: uuid.UUID, statement_id: uuid.UUID
+) -> list[ParseFailure]:
+    await get_owned_statement(db, user_id, statement_id)
+    result = await db.scalars(
+        select(ParseFailure)
+        .where(ParseFailure.statement_id == statement_id)
+        .order_by(ParseFailure.created_at)
+    )
+    return list(result)
+
+
+async def compute_stats(db: AsyncSession) -> dict:
+    """Bank profiles are global, so these numbers are system-wide, not
+    scoped to the calling user — this is the actual "gets better over
+    time" claim, and a single user's own upload count wouldn't represent
+    it honestly.
+    """
+    distinct_profiles = await db.scalar(select(func.count()).select_from(BankProfile))
+
+    method_rows = (
+        await db.execute(
+            select(Statement.parse_method, func.count())
+            .where(Statement.parse_method.is_not(None))
+            .group_by(Statement.parse_method)
+        )
+    ).all()
+    by_parse_method = dict(method_rows)
+
+    structure_rows = (
+        await db.execute(
+            select(Statement.detected_structure, func.count())
+            .where(Statement.detected_structure.is_not(None))
+            .group_by(Statement.detected_structure)
+        )
+    ).all()
+    by_detected_structure = dict(structure_rows)
+
+    status_rows = (
+        await db.execute(
+            select(Statement.parse_status, func.count()).group_by(Statement.parse_status)
+        )
+    ).all()
+    by_parse_status = dict(status_rows)
+
+    total_processed = sum(by_parse_method.values())
+    reuse_count = by_parse_method.get("profile_reuse", 0)
+    pct_reuse = (reuse_count / total_processed * 100.0) if total_processed else 0.0
+
+    return {
+        "distinct_bank_profiles": distinct_profiles or 0,
+        "total_statements_processed": total_processed,
+        "pct_profile_reuse": round(pct_reuse, 1),
+        "by_parse_method": by_parse_method,
+        "by_detected_structure": by_detected_structure,
+        "by_parse_status": by_parse_status,
+    }

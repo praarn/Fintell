@@ -24,6 +24,13 @@ class Settings(BaseSettings):
 
     categorization_confidence_threshold: float = 0.75
 
+    # Tier 1 statement parsing
+    upload_storage_dir: str = "uploads"
+    max_upload_size_bytes: int = 15 * 1024 * 1024
+    bank_profile_fuzzy_match_threshold: float = 90.0
+    pdf_structure_detection_page_sample: int = 3
+    ocr_min_confidence: float = 40.0
+
 
 @lru_cache
 def get_settings() -> Settings:

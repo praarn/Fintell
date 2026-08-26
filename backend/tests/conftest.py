@@ -1,6 +1,8 @@
 from collections.abc import AsyncIterator
+from pathlib import Path
 
 import asyncpg
+import pytest
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
@@ -9,6 +11,8 @@ from sqlalchemy.pool import NullPool
 from app.core.config import get_settings
 from app.core.database import Base, get_db
 from app.main import app
+
+FIXTURES_DIR = Path(__file__).parent / "fixtures" / "statements"
 
 settings = get_settings()
 
@@ -68,3 +72,23 @@ async def client(db_session) -> AsyncIterator[AsyncClient]:
     async with AsyncClient(transport=transport, base_url="http://test") as ac:
         yield ac
     app.dependency_overrides.clear()
+
+
+@pytest.fixture(autouse=True)
+def _isolate_upload_storage(tmp_path, monkeypatch):
+    """Every test writes uploaded statement files under a per-test temp
+    directory instead of the real backend/uploads/ folder."""
+    import app.services.statement_service as statement_service_module
+
+    monkeypatch.setattr(statement_service_module.settings, "upload_storage_dir", str(tmp_path))
+
+
+@pytest_asyncio.fixture
+async def authed_client(client: AsyncClient) -> AsyncClient:
+    email = "fixture-user@example.com"
+    password = "correct-horse-battery-staple"
+    await client.post("/auth/register", json={"email": email, "password": password})
+    login = await client.post("/auth/login", json={"email": email, "password": password})
+    token = login.json()["access_token"]
+    client.headers["Authorization"] = f"Bearer {token}"
+    return client

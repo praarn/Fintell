@@ -142,9 +142,7 @@ async def logout(db: AsyncSession, raw_refresh_token: str) -> None:
         await _revoke_family(db, row.family_id)
 
 
-async def list_active_sessions(
-    db: AsyncSession, user_id: uuid.UUID
-) -> list[RefreshToken]:
+async def list_active_sessions(db: AsyncSession, user_id: uuid.UUID) -> list[RefreshToken]:
     result = await db.scalars(
         select(RefreshToken)
         .where(RefreshToken.user_id == user_id, RefreshToken.revoked.is_(False))

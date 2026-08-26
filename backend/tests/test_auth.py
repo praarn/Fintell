@@ -12,9 +12,7 @@ async def _register_and_login(client: AsyncClient, email: str = EMAIL) -> dict:
 
 
 async def test_register_creates_user(client: AsyncClient) -> None:
-    response = await client.post(
-        "/auth/register", json={"email": EMAIL, "password": PASSWORD}
-    )
+    response = await client.post("/auth/register", json={"email": EMAIL, "password": PASSWORD})
     assert response.status_code == 201
     body = response.json()
     assert body["email"] == EMAIL
@@ -24,17 +22,13 @@ async def test_register_creates_user(client: AsyncClient) -> None:
 
 async def test_register_rejects_duplicate_email(client: AsyncClient) -> None:
     await client.post("/auth/register", json={"email": EMAIL, "password": PASSWORD})
-    response = await client.post(
-        "/auth/register", json={"email": EMAIL, "password": PASSWORD}
-    )
+    response = await client.post("/auth/register", json={"email": EMAIL, "password": PASSWORD})
     assert response.status_code == 409
 
 
 async def test_login_rejects_wrong_password(client: AsyncClient) -> None:
     await client.post("/auth/register", json={"email": EMAIL, "password": PASSWORD})
-    response = await client.post(
-        "/auth/login", json={"email": EMAIL, "password": "wrong-password"}
-    )
+    response = await client.post("/auth/login", json={"email": EMAIL, "password": "wrong-password"})
     assert response.status_code == 401
 
 
