@@ -52,6 +52,11 @@ class ParseFailureOut(BaseModel):
     created_at: datetime
 
 
+class DownloadUrlOut(BaseModel):
+    url: str
+    expires_in_seconds: int
+
+
 class StatementStatsOut(BaseModel):
     distinct_bank_profiles: int
     total_statements_processed: int

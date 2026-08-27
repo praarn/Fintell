@@ -30,7 +30,9 @@ TemplateName = Literal[
 ]
 
 # Guard against the Literal drifting from the actual template set.
-assert set(get_args(TemplateName)) == set(REGISTRY) | {"none"}, "TemplateName out of sync with REGISTRY"
+assert set(get_args(TemplateName)) == set(REGISTRY) | {"none"}, (
+    "TemplateName out of sync with REGISTRY"
+)
 
 
 class SelectionParams(BaseModel):

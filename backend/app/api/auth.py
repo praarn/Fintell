@@ -5,8 +5,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.deps import get_current_family_id, get_current_user
 from app.core.database import get_db
+from app.core.rate_limit import auth_rate_limit
 from app.models.user import User
 from app.schemas.auth import (
+    AuditLogOut,
     RefreshRequest,
     SessionOut,
     TokenPair,
@@ -14,7 +16,7 @@ from app.schemas.auth import (
     UserLogin,
     UserRead,
 )
-from app.services import auth_service
+from app.services import audit_service, auth_service
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
@@ -27,7 +29,12 @@ def _user_agent(request: Request) -> str | None:
     return request.headers.get("user-agent")
 
 
-@router.post("/register", response_model=UserRead, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/register",
+    response_model=UserRead,
+    status_code=status.HTTP_201_CREATED,
+    dependencies=[auth_rate_limit],
+)
 async def register(payload: UserCreate, db: AsyncSession = Depends(get_db)) -> User:
     try:
         return await auth_service.register_user(db, payload.email, payload.password)
@@ -37,21 +44,33 @@ async def register(payload: UserCreate, db: AsyncSession = Depends(get_db)) -> U
         ) from exc
 
 
-@router.post("/login", response_model=TokenPair)
+@router.post("/login", response_model=TokenPair, dependencies=[auth_rate_limit])
 async def login(
     payload: UserLogin, request: Request, db: AsyncSession = Depends(get_db)
 ) -> TokenPair:
     try:
         user = await auth_service.authenticate_user(db, payload.email, payload.password)
     except auth_service.InvalidCredentialsError as exc:
+        await audit_service.record(
+            db,
+            audit_service.LOGIN_FAILED,
+            target_type="email",
+            target_id=payload.email,
+            request=request,
+            commit=True,
+        )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid email or password"
         ) from exc
 
-    return await auth_service.login(db, user, _user_agent(request), _client_ip(request))
+    tokens = await auth_service.login(db, user, _user_agent(request), _client_ip(request))
+    await audit_service.record(
+        db, audit_service.LOGIN, user_id=user.id, request=request, commit=True
+    )
+    return tokens
 
 
-@router.post("/refresh", response_model=TokenPair)
+@router.post("/refresh", response_model=TokenPair, dependencies=[auth_rate_limit])
 async def refresh(
     payload: RefreshRequest, request: Request, db: AsyncSession = Depends(get_db)
 ) -> TokenPair:
@@ -60,6 +79,14 @@ async def refresh(
             db, payload.refresh_token, _user_agent(request), _client_ip(request)
         )
     except auth_service.RefreshTokenReuseDetectedError as exc:
+        await audit_service.record(
+            db,
+            audit_service.REFRESH_REUSE_DETECTED,
+            target_type="session_family",
+            target_id=str(exc),
+            request=request,
+            commit=True,
+        )
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Refresh token reuse detected — all sessions for this device chain "
@@ -104,6 +131,7 @@ async def list_sessions(
 @router.delete("/sessions/{family_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def revoke_session(
     family_id: uuid.UUID,
+    request: Request,
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> None:
@@ -113,3 +141,25 @@ async def revoke_session(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail="Session not found"
         ) from exc
+
+    await audit_service.record(
+        db,
+        audit_service.SESSION_REVOKED,
+        user_id=current_user.id,
+        target_type="session_family",
+        target_id=family_id,
+        request=request,
+        commit=True,
+    )
+
+
+@router.get("/activity", response_model=list[AuditLogOut])
+async def list_activity(
+    limit: int = 50,
+    current_user: User = Depends(get_current_user),
+    db: AsyncSession = Depends(get_db),
+) -> list[AuditLogOut]:
+    """The signed-in user's own audit trail — logins, uploads, deletes,
+    downloads, session revocations."""
+    limit = max(1, min(limit, 200))
+    return await audit_service.list_for_user(db, current_user.id, limit)

@@ -75,6 +75,19 @@ async def client(db_session) -> AsyncIterator[AsyncClient]:
 
 
 @pytest.fixture(autouse=True)
+def _disable_rate_limiting(monkeypatch):
+    """Rate limiting is off by default in the suite — the whole suite
+    shares one process (and one in-memory limiter keyed by a single test
+    client IP). `test_rate_limit.py` re-enables it explicitly."""
+    import app.core.rate_limit as rate_limit_module
+
+    monkeypatch.setattr(rate_limit_module.settings, "rate_limit_enabled", False)
+    rate_limit_module.limiter.reset()
+    yield
+    rate_limit_module.limiter.reset()
+
+
+@pytest.fixture(autouse=True)
 def _isolate_upload_storage(tmp_path, monkeypatch):
     """Every test writes uploaded statement files under a per-test temp
     directory instead of the real backend/uploads/ folder."""

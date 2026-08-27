@@ -1,5 +1,6 @@
 from app.models.account import Account
 from app.models.anomaly_flag import AnomalyFlag
+from app.models.audit_log import AuditLog
 from app.models.bank_profile import BankProfile
 from app.models.llm_batch_call import LLMBatchCall
 from app.models.llm_decision_log import LLMDecisionLog
@@ -15,6 +16,7 @@ from app.models.user import User
 __all__ = [
     "Account",
     "AnomalyFlag",
+    "AuditLog",
     "BankProfile",
     "LLMBatchCall",
     "LLMDecisionLog",

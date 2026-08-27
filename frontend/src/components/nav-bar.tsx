@@ -12,6 +12,8 @@ const LINKS = [
   { href: "/anomalies", label: "Anomalies" },
   { href: "/accounts", label: "Accounts" },
   { href: "/upload", label: "Upload" },
+  { href: "/admin", label: "Metrics" },
+  { href: "/settings", label: "Settings" },
 ];
 
 export function NavBar() {

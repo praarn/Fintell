@@ -125,7 +125,9 @@ async def answer_question(
 
     template = REGISTRY.get(selection.template_name)
     if template is None:  # unreachable given the structured-output enum, but be safe
-        return await _decline(db, user_id, question, _DECLINE_NO_MATCH, confidence=selection.confidence)
+        return await _decline(
+            db, user_id, question, _DECLINE_NO_MATCH, confidence=selection.confidence
+        )
 
     raw_params = selection.params.model_dump(exclude_none=True)
     try:

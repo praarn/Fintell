@@ -12,6 +12,7 @@ from app.core.config import get_settings
 settings = get_settings()
 
 ACCESS_TOKEN_TYPE = "access"
+DOWNLOAD_TOKEN_TYPE = "download"
 
 
 def hash_password(password: str) -> str:
@@ -39,6 +40,29 @@ def decode_access_token(token: str) -> dict[str, Any]:
     payload = jwt.decode(token, settings.jwt_secret_key, algorithms=[settings.jwt_algorithm])
     if payload.get("type") != ACCESS_TOKEN_TYPE:
         raise jwt.InvalidTokenError("not an access token")
+    return payload
+
+
+def create_download_token(statement_id: uuid.UUID, user_id: uuid.UUID) -> str:
+    """Short-lived, single-purpose token authorizing one owner to fetch
+    one uploaded statement file. Signed with the same HS256 secret as
+    access tokens but a distinct `type`, so it can't be swapped for one."""
+    now = datetime.now(UTC)
+    payload = {
+        "sub": str(user_id),
+        "sid": str(statement_id),
+        "type": DOWNLOAD_TOKEN_TYPE,
+        "iat": now,
+        "exp": now + timedelta(seconds=settings.download_url_ttl_seconds),
+    }
+    return jwt.encode(payload, settings.jwt_secret_key, algorithm=settings.jwt_algorithm)
+
+
+def decode_download_token(token: str) -> dict[str, Any]:
+    """Raises jwt.PyJWTError on any invalid/expired/tampered token."""
+    payload = jwt.decode(token, settings.jwt_secret_key, algorithms=[settings.jwt_algorithm])
+    if payload.get("type") != DOWNLOAD_TOKEN_TYPE:
+        raise jwt.InvalidTokenError("not a download token")
     return payload
 
 

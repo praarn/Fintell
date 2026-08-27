@@ -439,7 +439,7 @@ async def test_history_is_user_scoped(
     await authed_client.post("/ask", json={"question": "my private question"})
 
     # a second user sees none of it
-    other = await authed_client.post(
+    await authed_client.post(
         "/auth/register", json={"email": "other@example.com", "password": "correct-horse-2"}
     )
     login = await authed_client.post(

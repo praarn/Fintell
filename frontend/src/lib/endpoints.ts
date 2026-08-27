@@ -6,8 +6,12 @@ import type {
   AnomalyFlag,
   AnomalyStats,
   AskResponse,
+  AuditEntry,
+  ActiveSession,
+  DownloadUrl,
   QueryHistoryItem,
   RecurringGroup,
+  ResumeMetrics,
   SpendingByCategory,
   SpendingTrendPoint,
   Statement,
@@ -178,6 +182,30 @@ export function dismissAnomaly(flagId: string, reason?: string): Promise<Anomaly
 
 export function getAnomalyStats(): Promise<AnomalyStats> {
   return apiRequest<AnomalyStats>("/anomalies/stats");
+}
+
+export function listSessions(): Promise<ActiveSession[]> {
+  return apiRequest<ActiveSession[]>("/auth/sessions");
+}
+
+export function revokeSession(familyId: string): Promise<void> {
+  return apiRequest<void>(`/auth/sessions/${familyId}`, { method: "DELETE" });
+}
+
+export function getActivity(limit = 50): Promise<AuditEntry[]> {
+  return apiRequest<AuditEntry[]>("/auth/activity", { params: { limit } });
+}
+
+export function deleteStatement(statementId: string): Promise<void> {
+  return apiRequest<void>(`/statements/${statementId}`, { method: "DELETE" });
+}
+
+export function getStatementDownloadUrl(statementId: string): Promise<DownloadUrl> {
+  return apiRequest<DownloadUrl>(`/statements/${statementId}/download-url`, { method: "POST" });
+}
+
+export function getResumeMetrics(): Promise<ResumeMetrics> {
+  return apiRequest<ResumeMetrics>("/admin/metrics");
 }
 
 export function askQuestion(question: string): Promise<AskResponse> {

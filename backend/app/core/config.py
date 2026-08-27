@@ -55,6 +55,18 @@ class Settings(BaseSettings):
     # selection confidence we decline honestly instead of guessing.
     text_to_sql_min_confidence: float = 0.6
 
+    # Phase 8 security hardening.
+    # In-process fixed-window rate limiting (no Redis — single-process
+    # deployment; the store is per-worker). Disabled in the test suite.
+    rate_limit_enabled: bool = True
+    rate_limit_auth_max_requests: int = 10
+    rate_limit_auth_window_seconds: int = 60
+    rate_limit_upload_max_requests: int = 20
+    rate_limit_upload_window_seconds: int = 60
+    # Uploaded statement files are never served from a static path — access
+    # goes through a short-lived signed token minted for the owner.
+    download_url_ttl_seconds: int = 300
+
     # CORS: the frontend origin allowed to call this API with credentials.
     frontend_origin: str = "http://localhost:3000"
 

@@ -1,6 +1,7 @@
 import uuid
 from pathlib import Path
 
+from sqlalchemy import delete as sa_delete
 from sqlalchemy import func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -104,6 +105,44 @@ async def get_owned_statement(
     if statement is None:
         raise StatementNotFoundError(str(statement_id))
     return statement
+
+
+def _is_within_storage(path: Path) -> bool:
+    """Guard against deleting anything outside the upload directory — the
+    stored path is trusted (we wrote it), but this keeps a corrupt row
+    from turning a delete into an arbitrary unlink."""
+    try:
+        storage_root = Path(settings.upload_storage_dir).resolve()
+        return storage_root in path.resolve().parents
+    except (OSError, RuntimeError):
+        return False
+
+
+async def delete_statement(
+    db: AsyncSession, user_id: uuid.UUID, statement_id: uuid.UUID
+) -> None:
+    """Deletes a statement, its uploaded file, and everything downstream
+    of it (transactions cascade to splits and anomaly flags; parse
+    failures cascade too — all via ON DELETE CASCADE)."""
+    statement = await get_owned_statement(db, user_id, statement_id)
+
+    if statement.file_path:
+        file_path = Path(statement.file_path)
+        if _is_within_storage(file_path):
+            file_path.unlink(missing_ok=True)
+
+    await db.execute(sa_delete(Statement).where(Statement.id == statement_id))
+    await db.commit()
+
+
+def resolve_stored_file(statement: Statement) -> Path:
+    """The on-disk path for a statement's uploaded file, if it still
+    exists. Raises StatementNotFoundError otherwise (the row can outlive
+    the file)."""
+    path = Path(statement.file_path) if statement.file_path else None
+    if path is None or not path.is_file():
+        raise StatementNotFoundError(str(statement.id))
+    return path
 
 
 async def list_statements(db: AsyncSession, user_id: uuid.UUID) -> list[Statement]:

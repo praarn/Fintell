@@ -3,7 +3,14 @@
 import { useEffect, useState } from "react";
 
 import { ApiError } from "@/lib/api";
-import { listAccounts, uploadStatement } from "@/lib/endpoints";
+import { API_BASE_URL } from "@/lib/config";
+import {
+  deleteStatement,
+  getStatementDownloadUrl,
+  listAccounts,
+  listStatements,
+  uploadStatement,
+} from "@/lib/endpoints";
 import type { Account, Statement } from "@/lib/types";
 import { useRequireAuth } from "@/lib/use-require-auth";
 
@@ -16,11 +23,38 @@ export default function UploadPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<Statement | null>(null);
+  const [statements, setStatements] = useState<Statement[]>([]);
 
   useEffect(() => {
     if (!user) return;
     listAccounts().then(setAccounts);
+    listStatements().then(setStatements);
   }, [user]);
+
+  async function refreshStatements() {
+    setStatements(await listStatements());
+  }
+
+  async function handleDownload(statement: Statement) {
+    setError(null);
+    try {
+      const { url } = await getStatementDownloadUrl(statement.id);
+      window.open(`${API_BASE_URL}${url}`, "_blank", "noopener");
+    } catch (err) {
+      setError(err instanceof ApiError ? String(err.detail) : "Could not create a download link");
+    }
+  }
+
+  async function handleDelete(statement: Statement) {
+    if (!window.confirm(`Delete ${statement.original_filename} and its transactions?`)) return;
+    setError(null);
+    try {
+      await deleteStatement(statement.id);
+      await refreshStatements();
+    } catch (err) {
+      setError(err instanceof ApiError ? String(err.detail) : "Delete failed");
+    }
+  }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -35,6 +69,7 @@ export default function UploadPage() {
         !accountId ? bankHint || undefined : undefined,
       );
       setResult(statement);
+      await refreshStatements();
     } catch (err) {
       setError(err instanceof ApiError ? String(err.detail) : "Upload failed");
     } finally {
@@ -128,6 +163,39 @@ export default function UploadPage() {
             )}
           </dl>
         </div>
+      )}
+
+      {statements.length > 0 && (
+        <section className="mt-10">
+          <h2 className="mb-3 text-sm font-medium">Your statements</h2>
+          <ul className="divide-y divide-black/[.06] text-sm dark:divide-white/[.08]">
+            {statements.map((s) => (
+              <li key={s.id} className="flex items-center justify-between gap-4 py-2.5">
+                <div className="min-w-0">
+                  <p className="truncate font-medium">{s.original_filename}</p>
+                  <p className="text-xs text-zinc-500">
+                    {new Date(s.uploaded_at).toLocaleDateString()} · {s.parse_status} ·{" "}
+                    {s.row_count_parsed}/{s.row_count_total} rows
+                  </p>
+                </div>
+                <div className="flex shrink-0 gap-2">
+                  <button
+                    onClick={() => handleDownload(s)}
+                    className="rounded-full border border-black/[.12] px-3 py-1 text-xs hover:bg-black/[.04] dark:border-white/[.2] dark:hover:bg-white/[.08]"
+                  >
+                    Download
+                  </button>
+                  <button
+                    onClick={() => handleDelete(s)}
+                    className="rounded-full border border-red-200 px-3 py-1 text-xs text-red-700 hover:bg-red-50 dark:border-red-900/40 dark:text-red-300 dark:hover:bg-red-950/30"
+                  >
+                    Delete
+                  </button>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </section>
       )}
     </div>
   );

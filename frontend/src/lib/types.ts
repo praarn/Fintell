@@ -173,6 +173,48 @@ export interface QueryHistoryItem {
   created_at: string;
 }
 
+export interface ActiveSession {
+  family_id: string;
+  created_at: string;
+  expires_at: string;
+  user_agent: string | null;
+  ip_at_creation: string | null;
+  is_current: boolean;
+}
+
+export interface AuditEntry {
+  id: string;
+  action: string;
+  target_type: string | null;
+  target_id: string | null;
+  ip_address: string | null;
+  user_agent: string | null;
+  detail_json: Record<string, unknown>;
+  created_at: string;
+}
+
+export interface DownloadUrl {
+  url: string;
+  expires_in_seconds: number;
+}
+
+export interface ResumeMetrics {
+  transactions_total: number;
+  transactions_categorized: number;
+  categorization_by_method: Record<string, number>;
+  pct_categorized_deterministically: number;
+  pct_categorized_via_llm: number;
+  pct_statements_via_learned_profile: number;
+  distinct_bank_profiles: number;
+  total_statements_processed: number;
+  llm_batch_calls: number;
+  llm_merchants_categorized: number;
+  llm_estimated_cost_usd: number;
+  text_to_sql_questions: number;
+  text_to_sql_answered: number;
+  text_to_sql_match_rate: number;
+}
+
 export const CATEGORIES = [
   "groceries",
   "dining",
