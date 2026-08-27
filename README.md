@@ -9,6 +9,10 @@ The guiding principle throughout is **defensible over impressive**: deterministi
 code does the work wherever it can, an LLM is used only where nothing else will
 do, and every automated decision is logged so you can see why it was made.
 
+For the full design rationale — every table, every tech choice and the
+alternatives rejected, the parsing/categorization/anomaly/text-to-SQL internals,
+the test strategy — see **[IMPLEMENTATION.md](./IMPLEMENTATION.md)**.
+
 ## Stack
 
 - **Frontend:** Next.js (App Router, TypeScript, Tailwind)

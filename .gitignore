@@ -2,3 +2,6 @@
 .vscode/
 .idea/
 *.log
+
+# local spec / planning docs — not for publication
+/docs/
