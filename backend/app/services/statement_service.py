@@ -10,6 +10,7 @@ from app.models.parse_failure import ParseFailure
 from app.models.statement import Statement
 from app.models.transaction import Transaction
 from app.services import account_service
+from app.services.anomaly.service import run_anomaly_detection
 from app.services.categorization.service import categorize_statement_transactions
 from app.services.categorization.tier3 import categorize_statement_transactions_via_llm
 from app.services.parsing.pipeline import parse_statement
@@ -81,6 +82,15 @@ async def upload_and_parse_statement(
 
     await categorize_statement_transactions(db, statement.id)
     await categorize_statement_transactions_via_llm(db, statement.id)
+
+    # Phase 6: refit this user's anomaly model now that their history grew.
+    # Best-effort — a modelling hiccup must never fail an upload, and users
+    # below the min-history threshold simply get a no-op here.
+    try:
+        await run_anomaly_detection(db, user_id)
+    except Exception:  # noqa: BLE001 - deliberately swallowed, see above
+        await db.rollback()
+
     await db.refresh(statement)
     return statement
 

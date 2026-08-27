@@ -40,6 +40,16 @@ class Settings(BaseSettings):
     llm_cost_per_1k_completion_tokens: float = 0.0006
     llm_promotion_min_occurrences: int = 3
 
+    # Phase 6 anomaly detection — per-user IsolationForest on spending.
+    # Below this many outflow transactions a user's model isn't fit at all
+    # (too little history to call anything "unusual" honestly).
+    anomaly_min_transactions: int = 30
+    # Expected fraction of transactions that are anomalous — IsolationForest's
+    # `contamination`. Deliberately low; this is a review queue, not a filter.
+    anomaly_contamination: float = 0.05
+    # Robust z-score a feature must reach to be named as a driver of a flag.
+    anomaly_explain_z_threshold: float = 2.0
+
     # CORS: the frontend origin allowed to call this API with credentials.
     frontend_origin: str = "http://localhost:3000"
 

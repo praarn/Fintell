@@ -2,6 +2,9 @@ import { apiRequest } from "./api";
 import type {
   Account,
   AccountType,
+  AnomalyDetectRun,
+  AnomalyFlag,
+  AnomalyStats,
   RecurringGroup,
   SpendingByCategory,
   SpendingTrendPoint,
@@ -152,4 +155,25 @@ export function getRecurringTransactions(accountId?: string): Promise<RecurringG
   return apiRequest<RecurringGroup[]>("/transactions/recurring", {
     params: { account_id: accountId },
   });
+}
+
+export function listAnomalies(includeDismissed = false): Promise<AnomalyFlag[]> {
+  return apiRequest<AnomalyFlag[]>("/anomalies", {
+    params: { include_dismissed: includeDismissed },
+  });
+}
+
+export function runAnomalyDetection(): Promise<AnomalyDetectRun> {
+  return apiRequest<AnomalyDetectRun>("/anomalies/detect", { method: "POST" });
+}
+
+export function dismissAnomaly(flagId: string, reason?: string): Promise<AnomalyFlag> {
+  return apiRequest<AnomalyFlag>(`/anomalies/${flagId}/dismiss`, {
+    method: "POST",
+    body: { reason: reason ?? null },
+  });
+}
+
+export function getAnomalyStats(): Promise<AnomalyStats> {
+  return apiRequest<AnomalyStats>("/anomalies/stats");
 }

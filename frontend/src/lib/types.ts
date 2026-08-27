@@ -87,6 +87,53 @@ export interface TopMerchant {
   transaction_count: number;
 }
 
+export interface AnomalyDriver {
+  feature: string;
+  explanation: string;
+  z_score: number | null;
+  value: number | null;
+}
+
+export interface AnomalyTransaction {
+  id: string;
+  account_id: string | null;
+  raw_merchant: string;
+  normalized_merchant: string | null;
+  category: string | null;
+  amount: string;
+  date: string;
+}
+
+export type AnomalySeverity = "low" | "medium" | "high";
+
+export interface AnomalyFlag {
+  id: string;
+  transaction_id: string;
+  severity: AnomalySeverity;
+  score: number;
+  driving_features: AnomalyDriver[];
+  dismissed: boolean;
+  dismissal_reason: string | null;
+  created_at: string;
+  transaction: AnomalyTransaction;
+}
+
+export interface AnomalyDetectRun {
+  transactions_considered: number;
+  model_trained: boolean;
+  active_flag_count: number;
+  new_flag_count: number;
+  cleared_flag_count: number;
+}
+
+export interface AnomalyStats {
+  total_flags: number;
+  active_flags: number;
+  dismissed_flags: number;
+  by_severity: Record<string, number>;
+  dismissal_rate: number;
+}
+
 export interface RecurringGroup {
   normalized_merchant: string;
   typical_amount: string;
