@@ -5,6 +5,8 @@ import type {
   AnomalyDetectRun,
   AnomalyFlag,
   AnomalyStats,
+  AskResponse,
+  QueryHistoryItem,
   RecurringGroup,
   SpendingByCategory,
   SpendingTrendPoint,
@@ -176,4 +178,12 @@ export function dismissAnomaly(flagId: string, reason?: string): Promise<Anomaly
 
 export function getAnomalyStats(): Promise<AnomalyStats> {
   return apiRequest<AnomalyStats>("/anomalies/stats");
+}
+
+export function askQuestion(question: string): Promise<AskResponse> {
+  return apiRequest<AskResponse>("/ask", { method: "POST", body: { question } });
+}
+
+export function getAskHistory(limit = 20): Promise<QueryHistoryItem[]> {
+  return apiRequest<QueryHistoryItem[]>("/ask/history", { params: { limit } });
 }

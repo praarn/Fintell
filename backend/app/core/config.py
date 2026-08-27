@@ -50,6 +50,11 @@ class Settings(BaseSettings):
     # Robust z-score a feature must reach to be named as a driver of a flag.
     anomaly_explain_z_threshold: float = 2.0
 
+    # Phase 7 text-to-SQL ("ask your finances"). The LLM only selects a
+    # reviewed query template and fills typed params — below this
+    # selection confidence we decline honestly instead of guessing.
+    text_to_sql_min_confidence: float = 0.6
+
     # CORS: the frontend origin allowed to call this API with credentials.
     frontend_origin: str = "http://localhost:3000"
 

@@ -144,6 +144,35 @@ export interface RecurringGroup {
   transaction_ids: string[];
 }
 
+export type AskScalar = string | number | boolean | null;
+
+export interface AskChart {
+  kind: "bar" | "line";
+  labels: string[];
+  values: number[];
+}
+
+export interface AskResponse {
+  answered: boolean;
+  question: string;
+  matched_template: string | null;
+  confidence: number | null;
+  summary: string;
+  columns: string[];
+  rows: AskScalar[][];
+  chart: AskChart | null;
+}
+
+export interface QueryHistoryItem {
+  id: string;
+  question_text: string;
+  matched_template: string | null;
+  confidence: number | null;
+  declined: boolean;
+  result_summary: string;
+  created_at: string;
+}
+
 export const CATEGORIES = [
   "groceries",
   "dining",
