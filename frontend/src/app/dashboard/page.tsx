@@ -116,12 +116,21 @@ export default function DashboardPage() {
           </h1>
           <p className="page-lead">
             A snapshot across every account you&apos;ve uploaded. Spend figures are outflows only —
-            income and transfers are excluded.
+            income and transfers are excluded. New here?{" "}
+            <Link href="/guide" className="link">
+              Read the guide
+            </Link>
+            .
           </p>
         </div>
-        <Link href="/upload" className="btn btn-primary w-full sm:w-auto">
-          Upload a statement
-        </Link>
+        <div className="flex w-full gap-2 sm:w-auto">
+          <Link href="/guide" className="btn btn-ghost flex-1 sm:flex-none">
+            Guide
+          </Link>
+          <Link href="/upload" className="btn btn-primary flex-1 sm:flex-none">
+            Upload a statement
+          </Link>
+        </div>
       </div>
 
       {isLoading ? (
