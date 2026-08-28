@@ -1,72 +1,75 @@
 @import "tailwindcss";
 
-/* ------------------------------------------------------------------ *
- * Design tokens — an institutional, ledger-like palette: cool paper
- * greys, ink text, one confident blue for actions, emerald/red for
- * money direction. One light palette on :root, redefined for dark.
- * Utilities reference these through `@theme inline`, so the dark
- * overrides take effect at runtime with no rebuild.
- * ------------------------------------------------------------------ */
+/* ================================================================== *
+ * Fintell design system
+ * Warm-paper light / near-black dark, a single deep-emerald accent
+ * (money = green), generous spacing, ledger-grade numerals.
+ * One light palette on :root; dark overrides swap the same roles.
+ * Utilities reference these via `@theme inline`, so dark takes effect
+ * at runtime with no rebuild.
+ * ================================================================== */
 :root {
-  --bg: #f5f6f8;
-  --bg-accent: #eef1f5;
+  --bg: #f6f6f3;
+  --bg-accent: #efefea;
   --surface: #ffffff;
-  --surface-2: #f6f7f9;
-  --surface-3: #eef1f4;
-  --border: #e2e5ea;
-  --border-strong: #cfd4dc;
-  --text: #0f172a;
-  --text-secondary: #475569;
-  --text-muted: #6b7480;
+  --surface-2: #f4f4f0;
+  --surface-3: #ebeae4;
+  --border: #e6e4dc;
+  --border-strong: #d5d2c6;
+  --text: #1a1a16;
+  --text-secondary: #55534b;
+  --text-muted: #8a887d;
 
-  --brand: #1a56db;
-  --brand-strong: #1747b8;
-  --brand-soft: #e6eefb;
+  --brand: #0b7a53;
+  --brand-strong: #096544;
+  --brand-soft: #e1f1e9;
   --brand-fg: #ffffff;
 
-  --accent: #0f766e;
-  --positive: #047857;
-  --positive-soft: #dff3ea;
-  --negative: #b42318;
-  --negative-soft: #fbe6e3;
-  --warning: #b45309;
-  --warning-soft: #f8ecd8;
+  --accent: #0b6b7a;
+  --positive: #0b7a53;
+  --positive-soft: #e1f1e9;
+  --negative: #b23a2c;
+  --negative-soft: #f8e5e1;
+  --warning: #9a6b08;
+  --warning-soft: #f5ebd6;
 
-  --ring: color-mix(in srgb, var(--brand) 32%, transparent);
-  --shadow-sm: 0 1px 2px rgb(15 23 42 / 0.05), 0 1px 1px rgb(15 23 42 / 0.04);
-  --shadow-md: 0 6px 20px -6px rgb(15 23 42 / 0.12), 0 2px 6px -3px rgb(15 23 42 / 0.08);
-  --shadow-lg: 0 20px 48px -12px rgb(15 23 42 / 0.2);
+  --ring: color-mix(in srgb, var(--brand) 30%, transparent);
+  --shadow-sm: 0 1px 2px rgb(26 26 22 / 0.05), 0 1px 1px rgb(26 26 22 / 0.03);
+  --shadow-md: 0 6px 20px -8px rgb(26 26 22 / 0.14), 0 2px 6px -3px rgb(26 26 22 / 0.07);
+  --shadow-lg: 0 20px 44px -14px rgb(26 26 22 / 0.22);
+
+  --sidebar-w: 15rem;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0b0e14;
-    --bg-accent: #10141c;
-    --surface: #121620;
-    --surface-2: #171c27;
-    --surface-3: #1f2531;
-    --border: #262d3a;
-    --border-strong: #333c4c;
-    --text: #eef1f6;
-    --text-secondary: #b6becc;
-    --text-muted: #808a9b;
+    --bg: #0c0d0b;
+    --bg-accent: #101210;
+    --surface: #141512;
+    --surface-2: #1b1c18;
+    --surface-3: #24261f;
+    --border: #2a2b25;
+    --border-strong: #3b3d34;
+    --text: #f1f0ea;
+    --text-secondary: #bbbab0;
+    --text-muted: #84837a;
 
-    --brand: #5b8def;
-    --brand-strong: #7ba5f4;
-    --brand-soft: #16223a;
-    --brand-fg: #0b0e14;
+    --brand: #37b483;
+    --brand-strong: #4bc796;
+    --brand-soft: #112a20;
+    --brand-fg: #08130d;
 
-    --accent: #2dd4bf;
-    --positive: #34d399;
-    --positive-soft: #0e2a20;
-    --negative: #f87171;
-    --negative-soft: #2c1514;
-    --warning: #fbbf24;
-    --warning-soft: #2a2010;
+    --accent: #3bb4c4;
+    --positive: #37b483;
+    --positive-soft: #112a20;
+    --negative: #e8776a;
+    --negative-soft: #2c1613;
+    --warning: #d6a24a;
+    --warning-soft: #2a2110;
 
-    --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.45);
-    --shadow-md: 0 8px 24px -8px rgb(0 0 0 / 0.6);
-    --shadow-lg: 0 24px 56px -16px rgb(0 0 0 / 0.72);
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.5);
+    --shadow-md: 0 8px 24px -8px rgb(0 0 0 / 0.62);
+    --shadow-lg: 0 24px 52px -16px rgb(0 0 0 / 0.74);
   }
 }
 
@@ -106,55 +109,88 @@ html {
 body {
   min-height: 100vh;
   background-color: var(--bg);
-  /* Calm and institutional: a single faint top-down lift, nothing playful. */
-  background-image: linear-gradient(180deg, var(--bg-accent) 0%, var(--bg) 36rem);
-  background-repeat: no-repeat;
-  background-attachment: fixed;
   color: var(--text);
   font-family: var(--font-sans);
   font-feature-settings: "tnum" 1;
 }
 
 /* ------------------------------------------------------------------ *
- * Reusable component classes — keep page markup lean and consistent.
+ * Layout primitives
  * ------------------------------------------------------------------ */
 @layer components {
+  .app-shell {
+    display: flex;
+    min-height: 100vh;
+  }
+
+  .app-main {
+    flex: 1 1 0%;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
   .page {
     margin-inline: auto;
     width: 100%;
-    padding-inline: 1.5rem;
-    padding-block: 2.5rem 4rem;
+    max-width: 72rem;
+    padding-inline: clamp(1.25rem, 3vw, 2.5rem);
+    padding-block: 2rem 4rem;
+  }
+
+  /* Standard page header: title + lead + optional right-aligned actions,
+     closed by a hairline. */
+  .page-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-bottom: 1.1rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 1.75rem;
   }
 
   .page-title {
     font-size: 1.4rem;
-    line-height: 1.2;
-    font-weight: 650;
-    letter-spacing: -0.02em;
+    line-height: 1.15;
+    font-weight: 640;
+    letter-spacing: -0.021em;
     color: var(--text);
   }
 
   .page-lead {
-    margin-top: 0.55rem;
-    max-width: 62ch;
-    font-size: 0.875rem;
+    margin-top: 0.45rem;
+    max-width: 64ch;
+    font-size: 0.85rem;
     line-height: 1.6;
     color: var(--text-muted);
   }
 
+  .eyebrow {
+    font-size: 0.68rem;
+    font-weight: 650;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+
+  /* ---------------------------------------------------------------- *
+   * Cards
+   * ---------------------------------------------------------------- */
   .card {
     border: 1px solid var(--border);
     background-color: var(--surface);
-    border-radius: 10px;
+    border-radius: 12px;
     box-shadow: var(--shadow-sm);
   }
 
   .card-pad {
-    padding: 1.4rem;
+    padding: 1.35rem;
   }
 
   .card-hover {
-    transition: box-shadow 0.16s ease, transform 0.16s ease, border-color 0.16s ease;
+    transition: box-shadow 0.16s ease, border-color 0.16s ease, transform 0.16s ease;
   }
   .card-hover:hover {
     box-shadow: var(--shadow-md);
@@ -162,13 +198,45 @@ body {
     transform: translateY(-1px);
   }
 
+  /* KPI tile: eyebrow label, big ledger figure, optional delta line. */
+  .kpi {
+    border: 1px solid var(--border);
+    background-color: var(--surface);
+    border-radius: 12px;
+    padding: 1.15rem 1.25rem;
+    box-shadow: var(--shadow-sm);
+  }
+  .kpi-label {
+    font-size: 0.68rem;
+    font-weight: 650;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .kpi-value {
+    margin-top: 0.5rem;
+    font-size: 1.6rem;
+    font-weight: 640;
+    letter-spacing: -0.02em;
+    font-variant-numeric: tabular-nums lining-nums;
+    color: var(--text);
+  }
+  .kpi-sub {
+    margin-top: 0.3rem;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+
+  /* ---------------------------------------------------------------- *
+   * Form controls
+   * ---------------------------------------------------------------- */
   .input,
   .select {
     width: 100%;
     border: 1px solid var(--border-strong);
     background-color: var(--surface);
     color: var(--text);
-    border-radius: 7px;
+    border-radius: 8px;
     padding: 0.5rem 0.75rem;
     font-size: 0.875rem;
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
@@ -188,11 +256,12 @@ body {
     align-items: center;
     justify-content: center;
     gap: 0.4rem;
-    border-radius: 7px;
+    border-radius: 8px;
     padding: 0.5rem 1rem;
-    font-size: 0.875rem;
+    font-size: 0.85rem;
     font-weight: 560;
     cursor: pointer;
+    white-space: nowrap;
     transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease,
       box-shadow 0.15s ease, transform 0.05s ease;
   }
@@ -235,19 +304,23 @@ body {
   .btn-sm {
     padding: 0.3rem 0.7rem;
     font-size: 0.78rem;
-    border-radius: 6px;
+    border-radius: 7px;
   }
 
+  /* ---------------------------------------------------------------- *
+   * Badges / chips
+   * ---------------------------------------------------------------- */
   .chip {
     display: inline-flex;
     align-items: center;
     gap: 0.3rem;
-    border-radius: 5px;
+    border-radius: 6px;
     padding: 0.12rem 0.5rem;
-    font-size: 0.7rem;
-    font-weight: 600;
-    letter-spacing: 0.02em;
+    font-size: 0.68rem;
+    font-weight: 640;
+    letter-spacing: 0.03em;
     text-transform: uppercase;
+    white-space: nowrap;
   }
 
   .link {
@@ -256,9 +329,48 @@ body {
   }
   .link:hover {
     color: var(--brand-strong);
+    text-decoration: underline;
   }
 
-  /* Figures read as a ledger: tabular, tight, lining. */
+  /* ---------------------------------------------------------------- *
+   * Data tables
+   * ---------------------------------------------------------------- */
+  .table {
+    width: 100%;
+    font-size: 0.875rem;
+    border-collapse: collapse;
+  }
+  .table thead th {
+    padding: 0.7rem 1rem;
+    text-align: left;
+    font-size: 0.68rem;
+    font-weight: 650;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    border-bottom: 1px solid var(--border);
+    background-color: var(--surface-2);
+  }
+  .table tbody td {
+    padding: 0.7rem 1rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+  }
+  .table tbody tr:last-child td {
+    border-bottom: 0;
+  }
+  .table tbody tr {
+    transition: background-color 0.12s ease;
+  }
+  .table tbody tr:hover {
+    background-color: var(--surface-2);
+  }
+  .num {
+    font-variant-numeric: tabular-nums lining-nums;
+    text-align: right;
+    white-space: nowrap;
+  }
+
   .stat-value,
   .tnum {
     font-variant-numeric: tabular-nums lining-nums;
@@ -269,15 +381,62 @@ body {
     background-color: var(--surface-2);
   }
 
-  /* Thin brand rule for the top of the app chrome. */
-  .brand-rule {
-    border-top: 2px solid var(--brand);
+  /* ---------------------------------------------------------------- *
+   * Sidebar
+   * ---------------------------------------------------------------- */
+  .sidebar {
+    width: var(--sidebar-w);
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    align-self: flex-start;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--surface);
+    border-right: 1px solid var(--border);
+  }
+  .sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.48rem 0.7rem;
+    border-radius: 8px;
+    font-size: 0.86rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    transition: background-color 0.12s ease, color 0.12s ease;
+  }
+  .sidebar-link:hover {
+    background-color: var(--surface-2);
+    color: var(--text);
+  }
+  .sidebar-link[aria-current="page"] {
+    background-color: var(--brand-soft);
+    color: var(--brand);
+    font-weight: 600;
+  }
+  .sidebar-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background-color: currentColor;
+    opacity: 0.55;
+    flex-shrink: 0;
+  }
+  .sidebar-section {
+    padding: 0 0.7rem;
+    margin: 1.1rem 0 0.35rem;
+    font-size: 0.64rem;
+    font-weight: 700;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+    color: var(--text-muted);
   }
 }
 
 /* ------------------------------------------------------------------ *
- * Data-viz palette — consumed by the SVG chart components. Aligned
- * to the brand so charts read as part of the same system.
+ * Data-viz palette — consumed by the SVG chart components.
  * ------------------------------------------------------------------ */
 .viz-root {
   color-scheme: light;
@@ -287,13 +446,13 @@ body {
   --viz-text-muted: var(--text-muted);
   --viz-gridline: var(--border);
   --viz-baseline: var(--border-strong);
-  --viz-series-1: #1a56db;
-  --viz-series-1-wash: color-mix(in srgb, #1a56db 12%, transparent);
+  --viz-series-1: #0b7a53;
+  --viz-series-1-wash: color-mix(in srgb, #0b7a53 12%, transparent);
 }
 @media (prefers-color-scheme: dark) {
   .viz-root {
     color-scheme: dark;
-    --viz-series-1: #5b8def;
-    --viz-series-1-wash: color-mix(in srgb, #5b8def 16%, transparent);
+    --viz-series-1: #37b483;
+    --viz-series-1-wash: color-mix(in srgb, #37b483 16%, transparent);
   }
 }

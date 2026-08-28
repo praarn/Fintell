@@ -45,18 +45,23 @@ export default function AdminPage() {
 
   return (
     <div className="page max-w-4xl">
-      <h1 className="page-title">Metrics &amp; cost</h1>
-      <p className="page-lead">
-        System-wide numbers, computed live. These are the &ldquo;does the cost-aware design actually
-        work&rdquo; measurements — how much of categorization stays deterministic, how often a learned
-        bank profile is reused, what the LLM has actually cost, and how many natural-language
-        questions the template layer can answer honestly.
-      </p>
+      <div className="page-head">
+        <div>
+          <p className="eyebrow">Intelligence</p>
+          <h1 className="page-title mt-1">Metrics &amp; cost</h1>
+          <p className="page-lead">
+            System-wide numbers, computed live. These are the &ldquo;does the cost-aware design
+            actually work&rdquo; measurements — how much of categorization stays deterministic, how
+            often a learned bank profile is reused, what the LLM has actually cost, and how many
+            natural-language questions the template layer can answer honestly.
+          </p>
+        </div>
+      </div>
 
       {isLoading || !metrics ? (
-        <p className="mt-6 text-sm text-muted">Loading…</p>
+        <p className="text-sm text-muted">Loading…</p>
       ) : (
-        <div className="mt-6 space-y-8">
+        <div className="space-y-8">
           <div>
             <h2 className="mb-3 text-sm font-semibold text-secondary">Categorization</h2>
             <div className="grid gap-4 sm:grid-cols-3">

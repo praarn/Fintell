@@ -85,9 +85,10 @@ export default function AnomaliesPage() {
 
   return (
     <div className="page max-w-3xl">
-      <div className="flex flex-wrap items-start justify-between gap-4">
+      <div className="page-head">
         <div>
-          <h1 className="page-title">Anomalies</h1>
+          <p className="eyebrow">Intelligence</p>
+          <h1 className="page-title mt-1">Anomalies</h1>
           <p className="page-lead">
             A per-account{" "}
             <span className="font-medium text-secondary">IsolationForest</span> over your own

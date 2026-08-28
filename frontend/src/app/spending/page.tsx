@@ -69,9 +69,10 @@ export default function SpendingPage() {
 
   return (
     <div className="page max-w-5xl">
-      <div className="flex flex-wrap items-start justify-between gap-4">
+      <div className="page-head">
         <div>
-          <h1 className="page-title">Spending</h1>
+          <p className="eyebrow">Overview</p>
+          <h1 className="page-title mt-1">Spending</h1>
           <p className="page-lead">
             Outflows only, reported as positive magnitudes. Income and transfers are excluded.
           </p>

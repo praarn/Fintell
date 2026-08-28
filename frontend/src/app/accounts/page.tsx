@@ -46,13 +46,18 @@ export default function AccountsPage() {
 
   return (
     <div className="page max-w-2xl">
-      <h1 className="page-title">Accounts</h1>
-      <p className="page-lead">
-        A statement can be attached to an account, or you can just give a bank hint on upload and one
-        is created for you.
-      </p>
+      <div className="page-head">
+        <div>
+          <p className="eyebrow">Manage</p>
+          <h1 className="page-title mt-1">Accounts</h1>
+          <p className="page-lead">
+            A statement can be attached to an account, or you can just give a bank hint on upload and
+            one is created for you.
+          </p>
+        </div>
+      </div>
 
-      <form onSubmit={handleCreate} className="card card-pad mt-6 mb-8 flex flex-wrap items-end gap-3">
+      <form onSubmit={handleCreate} className="card card-pad mb-8 flex flex-wrap items-end gap-3">
         <div className="flex flex-col gap-1.5">
           <label className="text-xs font-medium text-muted">Name</label>
           <input

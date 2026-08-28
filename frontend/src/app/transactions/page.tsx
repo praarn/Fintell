@@ -85,14 +85,19 @@ export default function TransactionsPage() {
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   return (
-    <div className="page max-w-6xl">
-      <h1 className="page-title">Transactions</h1>
-      <p className="page-lead">
-        Every parsed row, with the tier that categorized it. Re-categorize inline or split a charge
-        across categories.
-      </p>
+    <div className="page">
+      <div className="page-head">
+        <div>
+          <p className="eyebrow">Overview</p>
+          <h1 className="page-title mt-1">Transactions</h1>
+          <p className="page-lead">
+            Every parsed row, with the tier that categorized it. Re-categorize inline or split a
+            charge across categories.
+          </p>
+        </div>
+      </div>
 
-      <div className="card card-pad mt-6 mb-4 flex flex-wrap gap-3">
+      <div className="card card-pad mb-4 flex flex-wrap gap-3">
         <select
           value={accountId}
           onChange={(e) => {

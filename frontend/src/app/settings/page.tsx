@@ -58,10 +58,15 @@ export default function SettingsPage() {
 
   return (
     <div className="page max-w-3xl">
-      <h1 className="page-title">Settings</h1>
-      <p className="page-lead">
-        Signed in as <span className="font-medium text-secondary">{user.email}</span>.
-      </p>
+      <div className="page-head">
+        <div>
+          <p className="eyebrow">Manage</p>
+          <h1 className="page-title mt-1">Settings</h1>
+          <p className="page-lead">
+            Signed in as <span className="font-medium text-secondary">{user.email}</span>.
+          </p>
+        </div>
+      </div>
 
       {error && (
         <p className="mt-4 rounded-lg bg-negative-soft px-3 py-2 text-sm text-negative">{error}</p>

@@ -135,12 +135,17 @@ export default function AskPage() {
 
   return (
     <div className="page max-w-3xl">
-      <h1 className="page-title">Ask your finances</h1>
-      <p className="page-lead">
-        Ask in plain language. Questions are mapped to a fixed set of reviewed queries against your
-        own transactions — the model never writes SQL, and it says so honestly when nothing fits.
-        Every answer shows the underlying numbers so you can check it.
-      </p>
+      <div className="page-head">
+        <div>
+          <p className="eyebrow">Intelligence</p>
+          <h1 className="page-title mt-1">Ask your finances</h1>
+          <p className="page-lead">
+            Ask in plain language. Questions are mapped to a fixed set of reviewed queries against
+            your own transactions — the model never writes SQL, and it says so honestly when nothing
+            fits. Every answer shows the underlying numbers so you can check it.
+          </p>
+        </div>
+      </div>
 
       <form
         onSubmit={(e) => {
