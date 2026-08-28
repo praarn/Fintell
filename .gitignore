@@ -5,6 +5,3 @@
 
 # local spec / planning docs — not for publication
 /docs/
-
-# production secrets
-.env.prod

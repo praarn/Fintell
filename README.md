@@ -22,9 +22,8 @@ the test strategy — see **[IMPLEMENTATION.md](./IMPLEMENTATION.md)**.
 - **Backend:** FastAPI, Pydantic v2, SQLAlchemy 2 (async), managed with `uv`
 - **Database:** PostgreSQL (no pgvector — see "text-to-SQL, not RAG" below)
 - **ML:** scikit-learn `IsolationForest` for anomaly detection
-- **Infra:** Docker Compose (dev + a production file behind Caddy), Alembic
-  migrations, GitHub Actions (lint → pytest with a Postgres service → frontend
-  build → `docker compose build`)
+- **Infra:** Docker Compose, Alembic migrations, GitHub Actions (lint → pytest
+  with a Postgres service → frontend build → `docker compose build`)
 
 ## Local development
 
@@ -51,15 +50,6 @@ cd backend && uv run pytest        # ~146 tests, needs a local Postgres
 ```
 
 Every command — Docker and local — is collected in **[commands.md](./commands.md)**.
-
-## Deployment
-
-- **Free**, no card: `render.yaml` is a Render Blueprint — *New → Blueprint →
-  this repo → Apply* stands up a free Postgres + both services with HTTPS URLs.
-- **VPS**: a production compose file runs the whole stack behind Caddy (automatic
-  HTTPS) — `./deploy/deploy.sh` after filling in `.env.prod`.
-
-Both are walked through in **[DEPLOY.md](./DEPLOY.md)**.
 
 ## Architecture decisions
 

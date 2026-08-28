@@ -1,25 +1,6 @@
 from functools import lru_cache
 
-from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
-
-
-def normalize_database_url(url: str) -> str:
-    """Accept the connection string shapes managed Postgres hosts hand out
-    (Render, Neon, Supabase, Railway, …) and coerce them to what this app's
-    async stack needs:
-
-    - `postgres://` / `postgresql://`  ->  `postgresql+asyncpg://`
-    - libpq's `?sslmode=<x>` (which asyncpg doesn't accept as a kwarg)
-      ->  asyncpg's `?ssl=<x>`
-    """
-    if not isinstance(url, str):
-        return url
-    for prefix in ("postgres://", "postgresql://"):
-        if url.startswith(prefix):
-            url = "postgresql+asyncpg://" + url[len(prefix) :]
-            break
-    return url.replace("sslmode=", "ssl=")
 
 
 class Settings(BaseSettings):
@@ -29,11 +10,6 @@ class Settings(BaseSettings):
     environment: str = "development"
 
     database_url: str = "postgresql+asyncpg://finance:finance@localhost:5432/finance"
-
-    @field_validator("database_url", mode="before")
-    @classmethod
-    def _normalize_database_url(cls, v: str) -> str:
-        return normalize_database_url(v)
 
     jwt_secret_key: str = "dev-secret-change-me-please-this-is-not-secure-at-all"
     jwt_algorithm: str = "HS256"

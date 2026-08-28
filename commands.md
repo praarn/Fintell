@@ -174,27 +174,6 @@ then restart the backend.
 
 ---
 
-## 8. Deploy to production
-
-Two paths, both in **[DEPLOY.md](./DEPLOY.md)**:
-
-- **Free / no card** — `render.yaml` is a Render Blueprint. In the Render
-  dashboard: *New → Blueprint → this repo → Apply*.
-- **VPS** — a compose file behind Caddy (auto-HTTPS). Short version, on the
-  server:
-
-```bash
-cp .env.prod.example .env.prod        # set DOMAIN, POSTGRES_PASSWORD, JWT_SECRET_KEY
-./deploy/deploy.sh                    # build + migrate + start
-
-# validate the compose file without running it
-docker compose --env-file .env.prod -f docker-compose.prod.yml config
-```
-
-`.env.prod` is gitignored — never commit real secrets.
-
----
-
 ## Quick reference
 
 | I want to… | Command |
@@ -206,4 +185,3 @@ docker compose --env-file .env.prod -f docker-compose.prod.yml config
 | Backend tests | `cd backend && uv run pytest` |
 | Frontend build/type-check | `cd frontend && npm run build` |
 | Full reset | `docker compose down -v` |
-| Deploy to a server | `./deploy/deploy.sh` (see DEPLOY.md) |

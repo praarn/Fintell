@@ -61,9 +61,8 @@ npm run build
 
 ## Notes
 
-- **`NEXT_PUBLIC_API_BASE_URL` is inlined at build time.** Empty →
-  `http://localhost:8000`. For a deployment the frontend image is built
-  with it set (see the root `docker-compose.prod.yml`).
+- **`NEXT_PUBLIC_API_BASE_URL` is inlined at build time.** Unset →
+  `http://localhost:8000` (see `lib/config.ts`).
 - Tokens live in `localStorage`; the shell (sidebar/top bar) only renders
   when a user is present.
 - The design system is entirely in `globals.css` — restyle by editing the
