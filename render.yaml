@@ -1,0 +1,73 @@
+# Free deployment on Render — https://render.com (no credit card).
+#
+# In the Render dashboard: New +  ->  Blueprint  ->  connect this repo  ->
+# Apply. It creates a free Postgres, a backend web service, and a frontend
+# web service, and gives each an https://*.onrender.com URL.
+#
+# Caveats of the free tier:
+#   - services sleep after ~15 min idle (first request after that is slow)
+#   - the free Postgres instance is removed ~30 days after creation
+#   - fine for a portfolio demo; for anything real, use DEPLOY.md (VPS).
+
+databases:
+  - name: fintell-db
+    plan: free
+    databaseName: finance
+    user: finance
+
+services:
+  # ---- backend: FastAPI (Docker) --------------------------------------
+  - type: web
+    name: fintell-backend
+    runtime: docker
+    plan: free
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    healthCheckPath: /health
+    # Bind Render's assigned $PORT; the image's own CMD hardcodes 8000.
+    dockerCommand: sh -c "uv run uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+    # Apply migrations before the new version goes live.
+    preDeployCommand: uv run alembic upgrade head
+    envVars:
+      - key: ENVIRONMENT
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: fintell-db
+          property: connectionString
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: FRONTEND_ORIGIN
+        fromService:
+          type: web
+          name: fintell-frontend
+          property: url
+      # Optional: paste an OpenAI-compatible key in the dashboard to turn
+      # on Tier 3 categorization + "Ask your finances". Left unset the app
+      # runs fine without them.
+      - key: LLM_API_KEY
+        sync: false
+      - key: LLM_BASE_URL
+        value: https://api.openai.com/v1
+      - key: LLM_MODEL
+        value: gpt-4o-mini
+
+  # ---- frontend: Next.js (Docker) -----------------------------------
+  - type: web
+    name: fintell-frontend
+    runtime: docker
+    plan: free
+    dockerfilePath: ./frontend/Dockerfile
+    dockerContext: ./frontend
+    healthCheckPath: /login
+    envVars:
+      # Inlined into the client bundle at image build time. Render passes
+      # service env vars to the Docker build as --build-arg, and the
+      # frontend Dockerfile declares `ARG NEXT_PUBLIC_API_BASE_URL`.
+      # If the cross-service reference ever fails to resolve at build,
+      # replace it with the literal https://fintell-backend.onrender.com
+      - key: NEXT_PUBLIC_API_BASE_URL
+        fromService:
+          type: web
+          name: fintell-backend
+          property: url

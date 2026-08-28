@@ -290,8 +290,12 @@ async def test_declines_when_params_fail_validation(
     assert row.matched_template is None  # decline == NULL template, even on a param failure
 
 
-async def test_declines_when_not_configured(authed_client: AsyncClient, db_session) -> None:
-    # no _mock_llm() call -> settings.llm_api_key stays unset
+async def test_declines_when_not_configured(
+    authed_client: AsyncClient, db_session, monkeypatch
+) -> None:
+    # Force the key unset regardless of any local .env, then don't _mock_llm().
+    monkeypatch.setattr(ask_service.settings, "llm_api_key", None)
+
     body = (
         await authed_client.post("/ask", json={"question": "how much did I spend?"})
     ).json()

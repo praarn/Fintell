@@ -1,10 +1,62 @@
-# Deploying Fintell (VPS + Docker Compose)
+# Deploying Fintell
+
+Two supported paths:
+
+| | Cost | Effort | Notes |
+| --- | --- | --- | --- |
+| **A. Render (free)** | $0, no card | ~4 clicks | services sleep when idle; free DB expires ~30 days |
+| **B. VPS + Docker Compose** | ~$5/mo (or $0 on Oracle Cloud Always Free) | ~20 min | always-on, real domain, one TLS cert |
+
+---
+
+## A. Render — free, from the repo
+
+[`render.yaml`](./render.yaml) is a Render **Blueprint**: it declares a free
+Postgres, the backend (Docker), and the frontend (Docker).
+
+1. Push this repo to your own GitHub (already done if you're reading it there).
+2. Sign up at <https://render.com> with GitHub — no credit card for the free
+   plan.
+3. **New +  →  Blueprint  →  pick this repo  →  Apply.**
+4. Render builds all three. When they're live, open the frontend URL
+   (`https://fintell-frontend.onrender.com` or similar).
+5. Register at `/register`. To load the demo data, open the **fintell-backend**
+   service → *Shell* and run:
+   ```bash
+   uv run python scripts/seed_merchant_lookup.py
+   uv run python scripts/seed_demo.py
+   ```
+
+What the Blueprint wires up for you: `DATABASE_URL` from the managed DB
+(normalized to `postgresql+asyncpg://` by the app), a generated
+`JWT_SECRET_KEY`, `FRONTEND_ORIGIN` = the frontend's URL (for CORS), and
+`NEXT_PUBLIC_API_BASE_URL` = the backend's URL (baked into the frontend at
+build time). `LLM_API_KEY` is left blank — paste one in the backend
+service's *Environment* tab to enable the LLM features.
+
+Free-tier limits: both services **sleep after ~15 min idle** (the next
+request takes ~30–60 s to wake), and Render deletes the free Postgres
+**~30 days** after creation. Fine for a demo; use path B for anything real.
+
+Other free-ish options with the same shape: **Railway**, **Fly.io**
+(both now want a card), or **Vercel** (frontend) + **Neon**/**Supabase**
+(free Postgres) + the backend on Render. The `DATABASE_URL` normalization
+in `app/core/config.py` handles all of their connection-string formats.
+
+---
+
+## B. VPS + Docker Compose
 
 Runs the whole stack — Postgres, the FastAPI backend, the Next.js frontend,
 and a Caddy reverse proxy that terminates TLS — on a single server you
 control. Caddy serves the app at `https://<your-domain>/` and proxies
 `https://<your-domain>/api/*` to the backend, so there is no CORS to
 configure and only one certificate to manage.
+
+> **Want this at $0?** [Oracle Cloud Always Free](https://www.oracle.com/cloud/free/)
+> gives a permanent free VM (ARM, 1–4 vCPU). The images here are multi-arch,
+> so the steps below work unchanged. A free hostname from
+> [duckdns.org](https://www.duckdns.org) stands in for a paid domain.
 
 ```
                          ┌──────────── your server ────────────┐
@@ -18,7 +70,7 @@ configure and only one certificate to manage.
 
 ---
 
-## 1. Prerequisites (you provide)
+### B1 — Prerequisites (you provide)
 
 - A Linux server (1 vCPU / 2 GB RAM is enough for a demo) with:
   - **Docker Engine** + the **Compose v2** plugin
@@ -29,14 +81,14 @@ configure and only one certificate to manage.
 
 Everything below runs **on the server**.
 
-## 2. Get the code
+### B2 — Get the code
 
 ```bash
 git clone https://github.com/praarn/Fintell.git
 cd Fintell
 ```
 
-## 3. Configure secrets
+### B3 — Configure secrets
 
 ```bash
 cp .env.prod.example .env.prod
@@ -53,7 +105,7 @@ Edit `.env.prod`:
 
 `.env.prod` is gitignored. Keep it on the server only.
 
-## 4. Deploy
+### B4 — Deploy
 
 ```bash
 ./deploy/deploy.sh
@@ -64,7 +116,7 @@ This builds the images, applies database migrations (the backend runs
 triggers Caddy to obtain a Let's Encrypt certificate — give it a minute,
 then open `https://<your-domain>/`.
 
-## 5. Create the first user
+### B5 — Create the first user
 
 Register through the UI at `https://<your-domain>/register`.
 
@@ -80,7 +132,7 @@ docker compose --env-file .env.prod -f docker-compose.prod.yml \
 
 ---
 
-## Operating it
+## Operating a VPS deploy
 
 All commands use the same prefix; export it once per shell if you like:
 

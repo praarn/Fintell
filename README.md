@@ -54,9 +54,12 @@ Every command — Docker and local — is collected in **[commands.md](./command
 
 ## Deployment
 
-A production compose file runs the whole stack behind Caddy (automatic HTTPS) on
-a single server: `./deploy/deploy.sh` after filling in `.env.prod`. Full runbook
-in **[DEPLOY.md](./DEPLOY.md)**.
+- **Free**, no card: `render.yaml` is a Render Blueprint — *New → Blueprint →
+  this repo → Apply* stands up a free Postgres + both services with HTTPS URLs.
+- **VPS**: a production compose file runs the whole stack behind Caddy (automatic
+  HTTPS) — `./deploy/deploy.sh` after filling in `.env.prod`.
+
+Both are walked through in **[DEPLOY.md](./DEPLOY.md)**.
 
 ## Architecture decisions
 

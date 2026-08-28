@@ -176,9 +176,12 @@ then restart the backend.
 
 ## 8. Deploy to production
 
-A separate compose file runs the whole stack behind Caddy (auto-HTTPS) on
-one server. Full runbook: **[DEPLOY.md](./DEPLOY.md)**. Short version, on
-the server:
+Two paths, both in **[DEPLOY.md](./DEPLOY.md)**:
+
+- **Free / no card** — `render.yaml` is a Render Blueprint. In the Render
+  dashboard: *New → Blueprint → this repo → Apply*.
+- **VPS** — a compose file behind Caddy (auto-HTTPS). Short version, on the
+  server:
 
 ```bash
 cp .env.prod.example .env.prod        # set DOMAIN, POSTGRES_PASSWORD, JWT_SECRET_KEY

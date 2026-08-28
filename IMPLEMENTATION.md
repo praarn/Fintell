@@ -1191,7 +1191,12 @@ and all HTTP flows run for real.
   proxies to the backend — one origin, no CORS, one auto-renewed TLS
   cert. Secrets come from a gitignored `.env.prod` (`.env.prod.example`
   is the template); `deploy/deploy.sh` builds + migrates + restarts.
-  Full runbook: [`DEPLOY.md`](./DEPLOY.md).
+- **`render.yaml`** — a Render Blueprint for a free, no-card deploy: a
+  managed Postgres + both services as Docker web services. The app's
+  `normalize_database_url` (`app/core/config.py`) coerces whatever
+  connection-string shape a managed host hands out
+  (`postgres://…?sslmode=require`) to `postgresql+asyncpg://…?ssl=require`.
+- Both paths are in [`DEPLOY.md`](./DEPLOY.md).
 
 ### CI — `.github/workflows/ci.yml`
 Three jobs on push/PR:

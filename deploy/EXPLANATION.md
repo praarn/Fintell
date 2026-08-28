@@ -4,6 +4,9 @@ Everything needed to run the production stack on a single Linux server with
 Docker. The step-by-step runbook is the root [`DEPLOY.md`](../DEPLOY.md);
 this file explains what each piece does and why.
 
+> For a **free, no-server** deploy, use `../render.yaml` instead (a Render
+> Blueprint — see DEPLOY.md § A). This folder is the self-hosted path.
+
 ## Files
 
 | File | Role |
