@@ -34,8 +34,8 @@ export default function LoginPage() {
       <div className="w-full max-w-sm">
         <div className="mb-6 flex flex-col items-center text-center">
           <span
-            className="mb-3 grid h-11 w-11 place-items-center rounded-xl text-lg font-bold text-white shadow-md"
-            style={{ backgroundImage: "linear-gradient(140deg, var(--brand) 0%, var(--accent) 100%)" }}
+            className="mb-3 grid h-11 w-11 place-items-center rounded-lg text-lg font-bold text-white shadow-sm"
+            style={{ backgroundColor: "var(--brand)" }}
             aria-hidden
           >
             F

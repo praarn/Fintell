@@ -1,70 +1,72 @@
 @import "tailwindcss";
 
 /* ------------------------------------------------------------------ *
- * Design tokens — one light palette on :root, redefined for dark.
- * Utilities below reference these through `@theme inline`, so the
- * dark overrides take effect at runtime with no rebuild.
+ * Design tokens — an institutional, ledger-like palette: cool paper
+ * greys, ink text, one confident blue for actions, emerald/red for
+ * money direction. One light palette on :root, redefined for dark.
+ * Utilities reference these through `@theme inline`, so the dark
+ * overrides take effect at runtime with no rebuild.
  * ------------------------------------------------------------------ */
 :root {
-  --bg: #f4f5fb;
-  --bg-accent: #e9ebf9;
+  --bg: #f5f6f8;
+  --bg-accent: #eef1f5;
   --surface: #ffffff;
-  --surface-2: #f7f8fc;
-  --surface-3: #eef0f8;
-  --border: #e4e6f0;
-  --border-strong: #d3d6e4;
-  --text: #14161f;
-  --text-secondary: #4a4f61;
-  --text-muted: #7b8194;
+  --surface-2: #f6f7f9;
+  --surface-3: #eef1f4;
+  --border: #e2e5ea;
+  --border-strong: #cfd4dc;
+  --text: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #6b7480;
 
-  --brand: #5b53e0;
-  --brand-strong: #4a41d4;
-  --brand-soft: #ecebfd;
+  --brand: #1a56db;
+  --brand-strong: #1747b8;
+  --brand-soft: #e6eefb;
   --brand-fg: #ffffff;
 
-  --accent: #0891b2;
-  --positive: #0f9d6b;
-  --positive-soft: #dcf5eb;
-  --negative: #dc3d47;
-  --negative-soft: #fde7e8;
-  --warning: #d98016;
-  --warning-soft: #fbedd8;
+  --accent: #0f766e;
+  --positive: #047857;
+  --positive-soft: #dff3ea;
+  --negative: #b42318;
+  --negative-soft: #fbe6e3;
+  --warning: #b45309;
+  --warning-soft: #f8ecd8;
 
-  --ring: color-mix(in srgb, var(--brand) 35%, transparent);
-  --shadow-sm: 0 1px 2px rgb(20 22 31 / 0.06), 0 1px 3px rgb(20 22 31 / 0.04);
-  --shadow-md: 0 8px 24px -6px rgb(20 22 31 / 0.12), 0 3px 8px -4px rgb(20 22 31 / 0.08);
-  --shadow-lg: 0 24px 60px -12px rgb(20 22 31 / 0.22);
+  --ring: color-mix(in srgb, var(--brand) 32%, transparent);
+  --shadow-sm: 0 1px 2px rgb(15 23 42 / 0.05), 0 1px 1px rgb(15 23 42 / 0.04);
+  --shadow-md: 0 6px 20px -6px rgb(15 23 42 / 0.12), 0 2px 6px -3px rgb(15 23 42 / 0.08);
+  --shadow-lg: 0 20px 48px -12px rgb(15 23 42 / 0.2);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0a0b11;
-    --bg-accent: #12131d;
-    --surface: #14151e;
-    --surface-2: #1a1c27;
-    --surface-3: #22242f;
-    --border: #292c39;
-    --border-strong: #363a49;
-    --text: #f2f3f8;
-    --text-secondary: #c4c8d4;
-    --text-muted: #8b90a2;
+    --bg: #0b0e14;
+    --bg-accent: #10141c;
+    --surface: #121620;
+    --surface-2: #171c27;
+    --surface-3: #1f2531;
+    --border: #262d3a;
+    --border-strong: #333c4c;
+    --text: #eef1f6;
+    --text-secondary: #b6becc;
+    --text-muted: #808a9b;
 
-    --brand: #8c85f5;
-    --brand-strong: #a29cf8;
-    --brand-soft: #201f3a;
-    --brand-fg: #0a0b11;
+    --brand: #5b8def;
+    --brand-strong: #7ba5f4;
+    --brand-soft: #16223a;
+    --brand-fg: #0b0e14;
 
-    --accent: #38bdf8;
-    --positive: #34d29e;
-    --positive-soft: #10281f;
-    --negative: #f2686f;
-    --negative-soft: #2a1315;
-    --warning: #f0a94b;
-    --warning-soft: #2a1e0e;
+    --accent: #2dd4bf;
+    --positive: #34d399;
+    --positive-soft: #0e2a20;
+    --negative: #f87171;
+    --negative-soft: #2c1514;
+    --warning: #fbbf24;
+    --warning-soft: #2a2010;
 
-    --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
-    --shadow-md: 0 10px 30px -8px rgb(0 0 0 / 0.55);
-    --shadow-lg: 0 30px 70px -16px rgb(0 0 0 / 0.7);
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.45);
+    --shadow-md: 0 8px 24px -8px rgb(0 0 0 / 0.6);
+    --shadow-lg: 0 24px 56px -16px rgb(0 0 0 / 0.72);
   }
 }
 
@@ -94,7 +96,7 @@
   --color-warning-soft: var(--warning-soft);
 
   --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-mono: var(--font-geist-mono), ui-monospace, "SF Mono", monospace;
 }
 
 html {
@@ -104,12 +106,13 @@ html {
 body {
   min-height: 100vh;
   background-color: var(--bg);
-  background-image:
-    radial-gradient(60rem 60rem at 108% -10%, color-mix(in srgb, var(--brand) 14%, transparent), transparent 60%),
-    radial-gradient(50rem 50rem at -20% 10%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 55%);
+  /* Calm and institutional: a single faint top-down lift, nothing playful. */
+  background-image: linear-gradient(180deg, var(--bg-accent) 0%, var(--bg) 36rem);
+  background-repeat: no-repeat;
   background-attachment: fixed;
   color: var(--text);
   font-family: var(--font-sans);
+  font-feature-settings: "tnum" 1;
 }
 
 /* ------------------------------------------------------------------ *
@@ -124,7 +127,7 @@ body {
   }
 
   .page-title {
-    font-size: 1.5rem;
+    font-size: 1.4rem;
     line-height: 1.2;
     font-weight: 650;
     letter-spacing: -0.02em;
@@ -132,8 +135,8 @@ body {
   }
 
   .page-lead {
-    margin-top: 0.6rem;
-    max-width: 60ch;
+    margin-top: 0.55rem;
+    max-width: 62ch;
     font-size: 0.875rem;
     line-height: 1.6;
     color: var(--text-muted);
@@ -142,21 +145,21 @@ body {
   .card {
     border: 1px solid var(--border);
     background-color: var(--surface);
-    border-radius: 16px;
+    border-radius: 10px;
     box-shadow: var(--shadow-sm);
   }
 
   .card-pad {
-    padding: 1.5rem;
+    padding: 1.4rem;
   }
 
   .card-hover {
-    transition: box-shadow 0.18s ease, transform 0.18s ease, border-color 0.18s ease;
+    transition: box-shadow 0.16s ease, transform 0.16s ease, border-color 0.16s ease;
   }
   .card-hover:hover {
     box-shadow: var(--shadow-md);
     border-color: var(--border-strong);
-    transform: translateY(-2px);
+    transform: translateY(-1px);
   }
 
   .input,
@@ -165,7 +168,7 @@ body {
     border: 1px solid var(--border-strong);
     background-color: var(--surface);
     color: var(--text);
-    border-radius: 10px;
+    border-radius: 7px;
     padding: 0.5rem 0.75rem;
     font-size: 0.875rem;
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
@@ -185,10 +188,10 @@ body {
     align-items: center;
     justify-content: center;
     gap: 0.4rem;
-    border-radius: 10px;
+    border-radius: 7px;
     padding: 0.5rem 1rem;
     font-size: 0.875rem;
-    font-weight: 550;
+    font-weight: 560;
     cursor: pointer;
     transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease,
       box-shadow 0.15s ease, transform 0.05s ease;
@@ -202,12 +205,12 @@ body {
   }
 
   .btn-primary {
-    background-image: linear-gradient(180deg, var(--brand) 0%, var(--brand-strong) 100%);
+    background-color: var(--brand);
     color: var(--brand-fg);
-    box-shadow: 0 1px 2px rgb(20 22 31 / 0.12), inset 0 1px 0 rgb(255 255 255 / 0.12);
+    box-shadow: var(--shadow-sm);
   }
   .btn-primary:not(:disabled):hover {
-    box-shadow: 0 6px 18px -6px var(--ring), inset 0 1px 0 rgb(255 255 255 / 0.12);
+    background-color: var(--brand-strong);
   }
 
   .btn-ghost {
@@ -218,7 +221,6 @@ body {
   .btn-ghost:not(:disabled):hover {
     background-color: var(--surface-2);
     color: var(--text);
-    border-color: var(--border-strong);
   }
 
   .btn-danger {
@@ -233,18 +235,19 @@ body {
   .btn-sm {
     padding: 0.3rem 0.7rem;
     font-size: 0.78rem;
-    border-radius: 8px;
+    border-radius: 6px;
   }
 
   .chip {
     display: inline-flex;
     align-items: center;
     gap: 0.3rem;
-    border-radius: 999px;
-    padding: 0.15rem 0.6rem;
-    font-size: 0.72rem;
+    border-radius: 5px;
+    padding: 0.12rem 0.5rem;
+    font-size: 0.7rem;
     font-weight: 600;
-    letter-spacing: 0.01em;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
   }
 
   .link {
@@ -255,13 +258,20 @@ body {
     color: var(--brand-strong);
   }
 
-  .stat-value {
-    font-variant-numeric: tabular-nums;
-    letter-spacing: -0.02em;
+  /* Figures read as a ledger: tabular, tight, lining. */
+  .stat-value,
+  .tnum {
+    font-variant-numeric: tabular-nums lining-nums;
+    letter-spacing: -0.01em;
   }
 
   .surface-muted {
     background-color: var(--surface-2);
+  }
+
+  /* Thin brand rule for the top of the app chrome. */
+  .brand-rule {
+    border-top: 2px solid var(--brand);
   }
 }
 
@@ -277,13 +287,13 @@ body {
   --viz-text-muted: var(--text-muted);
   --viz-gridline: var(--border);
   --viz-baseline: var(--border-strong);
-  --viz-series-1: #5b53e0;
-  --viz-series-1-wash: color-mix(in srgb, #5b53e0 12%, transparent);
+  --viz-series-1: #1a56db;
+  --viz-series-1-wash: color-mix(in srgb, #1a56db 12%, transparent);
 }
 @media (prefers-color-scheme: dark) {
   .viz-root {
     color-scheme: dark;
-    --viz-series-1: #8c85f5;
-    --viz-series-1-wash: color-mix(in srgb, #8c85f5 16%, transparent);
+    --viz-series-1: #5b8def;
+    --viz-series-1-wash: color-mix(in srgb, #5b8def 16%, transparent);
   }
 }

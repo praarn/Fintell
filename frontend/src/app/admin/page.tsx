@@ -18,8 +18,8 @@ function Stat({
   return (
     <div className="card card-pad card-hover relative overflow-hidden">
       <span
-        className="absolute inset-x-0 top-0 h-1"
-        style={{ backgroundImage: "linear-gradient(90deg, var(--brand), var(--accent))" }}
+        className="absolute inset-y-0 left-0 w-[3px]"
+        style={{ backgroundColor: "var(--brand)" }}
         aria-hidden
       />
       <p className="text-xs font-medium text-muted uppercase tracking-wide">{label}</p>

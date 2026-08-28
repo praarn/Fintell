@@ -20,8 +20,8 @@ function BrandMark() {
   return (
     <span className="flex items-center gap-2">
       <span
-        className="grid h-7 w-7 place-items-center rounded-lg text-[13px] font-bold text-white shadow-sm"
-        style={{ backgroundImage: "linear-gradient(140deg, var(--brand) 0%, var(--accent) 100%)" }}
+        className="grid h-7 w-7 place-items-center rounded-md text-[13px] font-bold text-white"
+        style={{ backgroundColor: "var(--brand)" }}
         aria-hidden
       >
         F
@@ -39,7 +39,7 @@ export function NavBar() {
   if (!user) return null;
 
   return (
-    <nav className="sticky top-0 z-40 border-b border-border bg-surface/80 backdrop-blur-md">
+    <nav className="brand-rule sticky top-0 z-40 border-b border-border bg-surface/85 backdrop-blur-md">
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-2.5">
         <div className="flex items-center gap-1">
           <Link href="/transactions" className="mr-3 shrink-0">
@@ -53,7 +53,7 @@ export function NavBar() {
                   key={link.href}
                   href={link.href}
                   aria-current={active ? "page" : undefined}
-                  className={`rounded-lg px-2.5 py-1.5 text-sm whitespace-nowrap transition-colors ${
+                  className={`rounded-md px-2.5 py-1.5 text-sm whitespace-nowrap transition-colors ${
                     active
                       ? "bg-brand-soft font-semibold text-brand"
                       : "text-muted hover:bg-surface-2 hover:text-content"
