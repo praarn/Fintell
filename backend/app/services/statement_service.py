@@ -24,8 +24,13 @@ class StatementNotFoundError(Exception):
 
 
 def _extension_for(filename: str) -> str:
+    """Preserve the uploaded file's own extension for the stored blob so a
+    later download round-trips with a sensible name. Restricted to a short,
+    alphanumeric suffix to keep the on-disk name safe."""
     suffix = Path(filename).suffix.lower()
-    return suffix if suffix in (".csv", ".pdf") else ""
+    if 2 <= len(suffix) <= 8 and suffix[1:].isalnum():
+        return suffix
+    return ""
 
 
 async def upload_and_parse_statement(

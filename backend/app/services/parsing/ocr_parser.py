@@ -1,7 +1,14 @@
+import io
+
 import pypdfium2 as pdfium
 import pytesseract
+from PIL import Image, UnidentifiedImageError
 
-from app.services.parsing.constants import REASON_OCR_LOW_CONFIDENCE, REASON_OCR_UNAVAILABLE
+from app.services.parsing.constants import (
+    REASON_NO_TEXT_EXTRACTED,
+    REASON_OCR_LOW_CONFIDENCE,
+    REASON_OCR_UNAVAILABLE,
+)
 from app.services.parsing.pdf_text_parser import parse_text_lines
 from app.services.parsing.types import ParseOutcome, UnresolvableStructureError
 
@@ -49,6 +56,19 @@ def _ocr_page_lines(pil_image) -> tuple[list[str], float]:
     return lines, mean_confidence
 
 
+def _lines_to_outcome(
+    all_lines: list[str], confidences: list[float], min_confidence: float
+) -> ParseOutcome:
+    overall_confidence = sum(confidences) / len(confidences) if confidences else 0.0
+    if not all_lines or overall_confidence < min_confidence:
+        raise UnresolvableStructureError(
+            REASON_OCR_LOW_CONFIDENCE,
+            f"OCR mean confidence {overall_confidence:.1f} is below the "
+            f"{min_confidence} threshold — not attempting to parse likely-garbage text",
+        )
+    return parse_text_lines(all_lines)
+
+
 def parse_pdf_ocr(file_bytes: bytes, min_confidence: float) -> ParseOutcome:
     """Renders every page to an image and OCRs it. Never raises a raw
     exception up to the API layer: a missing Tesseract binary or
@@ -72,12 +92,34 @@ def parse_pdf_ocr(file_bytes: bytes, min_confidence: float) -> ParseOutcome:
             "enable scanned-PDF parsing.",
         ) from exc
 
-    overall_confidence = sum(confidences) / len(confidences) if confidences else 0.0
-    if not all_lines or overall_confidence < min_confidence:
-        raise UnresolvableStructureError(
-            REASON_OCR_LOW_CONFIDENCE,
-            f"OCR mean confidence {overall_confidence:.1f} is below the "
-            f"{min_confidence} threshold — not attempting to parse likely-garbage text",
-        )
+    return _lines_to_outcome(all_lines, confidences, min_confidence)
 
-    return parse_text_lines(all_lines)
+
+def parse_image_ocr(file_bytes: bytes, min_confidence: float) -> ParseOutcome:
+    """OCR a bare raster image (a phone photo or scan of a statement that
+    wasn't wrapped in a PDF). Shares the scanned-PDF post-processing, and
+    degrades to an UnresolvableStructureError — never a raw exception — for
+    an unreadable image, a missing Tesseract binary, or low-confidence text.
+    """
+    try:
+        image = Image.open(io.BytesIO(file_bytes))
+        image.load()
+    except (UnidentifiedImageError, OSError, ValueError) as exc:
+        raise UnresolvableStructureError(
+            REASON_NO_TEXT_EXTRACTED,
+            "Uploaded file could not be decoded as an image.",
+        ) from exc
+
+    if image.mode not in ("RGB", "L"):
+        image = image.convert("RGB")
+
+    try:
+        lines, confidence = _ocr_page_lines(image)
+    except pytesseract.TesseractNotFoundError as exc:
+        raise UnresolvableStructureError(
+            REASON_OCR_UNAVAILABLE,
+            "Tesseract OCR binary not found on this host; install tesseract-ocr to "
+            "enable scanned-image parsing.",
+        ) from exc
+
+    return _lines_to_outcome(lines, [confidence], min_confidence)

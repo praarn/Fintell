@@ -31,6 +31,7 @@ STRUCTURE_TO_PROFILE_TYPE = {
     "pdf_table": "pdf_table_header",
     "pdf_text_no_table": "pdf_text_regex",
     "pdf_scan_ocr": "pdf_text_regex",
+    "image_scan_ocr": "pdf_text_regex",
 }
 GRID_PROFILE_TYPES = {"csv_header", "pdf_table_header"}
 
@@ -60,6 +61,8 @@ def _cold_parse(detected_structure: str, file_bytes: bytes) -> ParseOutcome:
         return pdf_text_parser.parse_text_lines(lines)
     if detected_structure == "pdf_scan_ocr":
         return ocr_parser.parse_pdf_ocr(file_bytes, settings.ocr_min_confidence)
+    if detected_structure == "image_scan_ocr":
+        return ocr_parser.parse_image_ocr(file_bytes, settings.ocr_min_confidence)
     raise ValueError(f"unknown detected_structure: {detected_structure}")
 
 

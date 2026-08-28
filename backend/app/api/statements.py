@@ -40,9 +40,14 @@ async def upload_statement(
     current_user: User = Depends(get_current_user),
     db: AsyncSession = Depends(get_db),
 ) -> StatementOut:
-    if not file.filename or not file.filename.lower().endswith((".csv", ".pdf")):
-        raise HTTPException(status_code=400, detail="Only .csv and .pdf files are supported")
+    if not file.filename or not file.filename.strip():
+        raise HTTPException(status_code=400, detail="A file with a name is required")
 
+    # Any file type is accepted. The Tier 1 pipeline sniffs the actual
+    # content (CSV/TSV/text grids, PDF tables/text/scans, and bare images
+    # via OCR) and, for anything it genuinely can't read, records an
+    # honest `failed_needs_manual` statement with a logged reason rather
+    # than rejecting the upload outright.
     file_bytes = await file.read()
     if len(file_bytes) > settings.max_upload_size_bytes:
         raise HTTPException(status_code=413, detail="File exceeds the maximum upload size")

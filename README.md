@@ -1,9 +1,12 @@
 # Fintell — Personal Finance Statement Intelligence
 
-Upload a bank statement in whatever shape your bank exports it — CSV or PDF, any
+Upload a bank statement in whatever shape your bank exports it — CSV, TSV or
+plain text, a PDF (real or scanned), or a photo of a paper statement — any
 column order, any date format, negative-for-debit or separate debit/credit
-columns, even a scanned image — and get back categorized transactions, spending
-views, anomaly flags, and a natural-language "ask your finances" box.
+columns — and get back categorized transactions, spending views, anomaly flags,
+and a natural-language "ask your finances" box. Any file type is accepted;
+anything the parser can't read is logged for manual review, never rejected
+outright.
 
 The guiding principle throughout is **defensible over impressive**: deterministic
 code does the work wherever it can, an LLM is used only where nothing else will

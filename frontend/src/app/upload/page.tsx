@@ -83,16 +83,17 @@ export default function UploadPage() {
     <div className="page max-w-2xl">
       <h1 className="page-title">Upload a statement</h1>
       <p className="page-lead">
-        CSV or PDF, any column order or date format, negative-for-debit or split debit/credit columns,
-        even a scanned image. The layout is fingerprinted and reused next time.
+        Any file — CSV, TSV or plain text, a PDF (real or scanned), or a photo of a paper statement.
+        Any column order or date format, negative-for-debit or split debit/credit columns. The layout
+        is fingerprinted and reused next time; anything that can&apos;t be read is logged for manual
+        review rather than rejected.
       </p>
 
       <form onSubmit={handleSubmit} className="card card-pad mt-6 space-y-4">
         <div className="space-y-1.5">
-          <label className="text-sm font-medium text-secondary">Statement file (.csv or .pdf)</label>
+          <label className="text-sm font-medium text-secondary">Statement file</label>
           <input
             type="file"
-            accept=".csv,.pdf"
             required
             onChange={(e) => setFile(e.target.files?.[0] ?? null)}
             className="block w-full text-sm text-secondary file:mr-3 file:rounded-lg file:border-0 file:bg-brand-soft file:px-3 file:py-1.5 file:text-sm file:font-medium file:text-brand hover:file:bg-brand-soft/70"

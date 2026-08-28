@@ -365,8 +365,8 @@ lets the system get better per-layout for everyone.
 | bank_profile_id | UUID FK→bank_profiles **SET NULL** | which layout parsed it |
 | original_filename | VARCHAR(512) | |
 | file_path | VARCHAR(1024) | on-disk path under `UPLOAD_STORAGE_DIR/<user_id>/` |
-| file_type | VARCHAR(16) | `csv` / `pdf` |
-| detected_structure | VARCHAR(32) | `clean_csv` / `pdf_table` / `pdf_text_no_table` / `pdf_scan_ocr` |
+| file_type | VARCHAR(16) | `csv` / `pdf` / `image` |
+| detected_structure | VARCHAR(32) | `clean_csv` / `pdf_table` / `pdf_text_no_table` / `pdf_scan_ocr` / `image_scan_ocr` |
 | parse_status | VARCHAR(32) | `pending` / `parsed_clean` / `parsed_with_warnings` / `failed_needs_manual` |
 | parse_method | VARCHAR(32) | `cold_detection` / `profile_reuse` |
 | bank_profile_match_score | FLOAT | nullable, 0–100 (100 = exact hash hit) |
@@ -587,15 +587,23 @@ API; any unresolvable structure becomes a `failed_needs_manual` statement
 with a logged `ParseFailure`.
 
 ### 7.1 Structure detection — `parsing/structure_sniffer.py`
-- Not a PDF (by extension or `%PDF` magic bytes) → `clean_csv`.
-- PDF → sample the first `PDF_STRUCTURE_DETECTION_PAGE_SAMPLE` pages with
-  pdfplumber: any real table (≥2 rows × ≥2 cols) → `pdf_table`; else any
-  substantial text → `pdf_text_no_table`; else → `pdf_scan_ocr`.
+The upload endpoint accepts **any file type** — there is no extension
+allowlist. The sniffer decides how to parse it from the content:
+- A raster image (by magic bytes — PNG/JPEG/GIF/BMP/TIFF/WEBP — or image
+  extension) → `image_scan_ocr`, `file_type = image`. A phone photo of a
+  paper statement lands here.
+- A PDF (by extension or `%PDF` magic bytes) → sample the first
+  `PDF_STRUCTURE_DETECTION_PAGE_SAMPLE` pages with pdfplumber: any real
+  table (≥2 rows × ≥2 cols) → `pdf_table`; else any substantial text →
+  `pdf_text_no_table`; else → `pdf_scan_ocr`.
+- Everything else — CSV, TSV, plain text, or an unrecognized upload →
+  `clean_csv`, fed to the delimited-grid parser. Non-tabular bytes fail
+  honestly (a logged `ParseFailure` + `failed_needs_manual`), never a crash.
 
 ### 7.2 Profile lookup & the reuse/cold decision — `parsing/profile_service.py`
 `structure_type` maps `clean_csv → csv_header`,
-`pdf_table → pdf_table_header`, `pdf_text_no_table`/`pdf_scan_ocr →
-pdf_text_regex`.
+`pdf_table → pdf_table_header`, and
+`pdf_text_no_table`/`pdf_scan_ocr`/`image_scan_ocr → pdf_text_regex`.
 
 **Grid layouts (CSV, PDF-table)** — reuse is a genuine shortcut:
 1. Read the grid. Scan the first `MAX_HEADER_SCAN_ROWS` rows; for each,
@@ -667,10 +675,13 @@ natively. Decoded as `utf-8-sig` to strip BOMs.
 Render each page at ~300 DPI (`pypdfium2`), OCR with `pytesseract`,
 **re-cluster word boxes by vertical position** (don't trust Tesseract's
 line segmentation across wide column gaps), feed reconstructed lines to
-the text-PDF parser. A missing Tesseract binary or mean confidence below
-`OCR_MIN_CONFIDENCE` (default 40) → `UnresolvableStructureError` →
-`failed_needs_manual` (never garbage rows). Tesseract is installed in the
-Docker image and CI; its absence degrades gracefully everywhere else.
+the text-PDF parser. `parse_image_ocr` reuses the same word-box
+reconstruction and post-processing for a bare uploaded image (`Pillow`
+opens it; anything undecodable → `no_text_extracted`). A missing Tesseract
+binary or mean confidence below `OCR_MIN_CONFIDENCE` (default 40) →
+`UnresolvableStructureError` → `failed_needs_manual` (never garbage rows).
+Tesseract is installed in the Docker image and CI; its absence degrades
+gracefully everywhere else.
 
 ### 7.8 Persisting the outcome — `parsing/pipeline.py`
 Writes `Transaction` rows and `ParseFailure` rows, sets

@@ -31,12 +31,32 @@ async def test_upload_happy_path(authed_client: AsyncClient) -> None:
     assert body["parse_method"] == "cold_detection"
 
 
-async def test_rejects_unsupported_file_type(authed_client: AsyncClient) -> None:
+async def test_unreadable_upload_is_accepted_but_flagged_for_manual_review(
+    authed_client: AsyncClient,
+) -> None:
+    """Any file type is accepted; content the pipeline can't parse becomes a
+    logged failed_needs_manual statement, never an outright rejection."""
     response = await authed_client.post(
         "/statements/upload",
         files={"file": ("statement.txt", b"not a real statement", "text/plain")},
     )
-    assert response.status_code == 400
+    assert response.status_code == 201
+    body = response.json()
+    assert body["parse_status"] == "failed_needs_manual"
+    assert body["row_count_parsed"] == 0
+
+    statement_id = body["id"]
+    failures = await authed_client.get(f"/statements/{statement_id}/parse-failures")
+    assert failures.status_code == 200
+    assert len(failures.json()) >= 1
+
+
+async def test_rejects_upload_with_no_filename(authed_client: AsyncClient) -> None:
+    response = await authed_client.post(
+        "/statements/upload",
+        files={"file": ("", b"whatever", "application/octet-stream")},
+    )
+    assert response.status_code in (400, 422)
 
 
 async def test_statement_list_and_detail_are_user_scoped(authed_client: AsyncClient) -> None:
