@@ -115,7 +115,7 @@ const FAQ = [
   },
   {
     q: "How do I manage my sessions?",
-    a: "Settings lists every device that has signed in and lets you revoke any of them. Refresh tokens rotate on each use; reusing an old one revokes the whole session automatically.",
+    a: "Profile lists every device that has signed in and lets you revoke any of them. Refresh tokens rotate on each use; reusing an old one revokes the whole session automatically.",
   },
   {
     q: "Can I start over?",

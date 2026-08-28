@@ -1,9 +1,18 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { ApiError } from "@/lib/api";
-import { getActivity, listSessions, revokeSession } from "@/lib/endpoints";
+import { useAuth } from "@/lib/auth-context";
+import {
+  getActivity,
+  listAccounts,
+  listSessions,
+  listStatements,
+  listTransactions,
+  revokeSession,
+} from "@/lib/endpoints";
 import type { ActiveSession, AuditEntry } from "@/lib/types";
 import { useRequireAuth } from "@/lib/use-require-auth";
 
@@ -19,21 +28,43 @@ const ACTION_LABELS: Record<string, string> = {
 };
 
 function formatWhen(iso: string): string {
-  return new Date(iso).toLocaleString(undefined, {
-    dateStyle: "medium",
-    timeStyle: "short",
+  return new Date(iso).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" });
+}
+
+function formatDay(iso: string): string {
+  return new Date(iso).toLocaleDateString(undefined, {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
   });
 }
 
-export default function SettingsPage() {
+export default function ProfilePage() {
   const { user, isLoading: authLoading } = useRequireAuth();
+  const { logout } = useAuth();
+  const router = useRouter();
+
+  const [counts, setCounts] = useState<{ accounts: number; statements: number; transactions: number }>(
+    { accounts: 0, statements: 0, transactions: 0 },
+  );
   const [sessions, setSessions] = useState<ActiveSession[]>([]);
   const [activity, setActivity] = useState<AuditEntry[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const refresh = useCallback(async () => {
-    const [s, a] = await Promise.all([listSessions(), getActivity(50)]);
+    const [accounts, statements, tx, s, a] = await Promise.all([
+      listAccounts(),
+      listStatements(),
+      listTransactions({ page: 1, page_size: 1 }),
+      listSessions(),
+      getActivity(50),
+    ]);
+    setCounts({
+      accounts: accounts.length,
+      statements: statements.length,
+      transactions: tx.total,
+    });
     setSessions(s);
     setActivity(a);
   }, []);
@@ -54,23 +85,65 @@ export default function SettingsPage() {
     }
   }
 
+  async function handleLogout() {
+    await logout();
+    router.replace("/login");
+  }
+
   if (authLoading || !user) return null;
 
   return (
     <div className="page max-w-3xl">
       <div className="page-head">
         <div>
-          <p className="eyebrow">Manage</p>
-          <h1 className="page-title mt-1">Settings</h1>
+          <p className="eyebrow">Account</p>
+          <h1 className="page-title mt-1">Profile</h1>
           <p className="page-lead">
-            Signed in as <span className="font-medium text-secondary">{user.email}</span>.
+            Your identity, a summary of the data you&apos;ve uploaded, and the security controls for
+            your account.
           </p>
         </div>
+        <button onClick={handleLogout} className="btn btn-ghost w-full sm:w-auto">
+          Log out
+        </button>
       </div>
 
       {error && (
-        <p className="mt-4 rounded-lg bg-negative-soft px-3 py-2 text-sm text-negative">{error}</p>
+        <p className="mb-4 rounded-lg bg-negative-soft px-3 py-2 text-sm text-negative">{error}</p>
       )}
+
+      <section className="card card-pad flex flex-col gap-4 sm:flex-row sm:items-center">
+        <span
+          className="grid h-14 w-14 shrink-0 place-items-center rounded-xl text-xl font-bold text-white"
+          style={{ backgroundColor: "var(--brand)" }}
+          aria-hidden
+        >
+          {user.email.slice(0, 1).toUpperCase()}
+        </span>
+        <div className="min-w-0">
+          <p className="truncate text-base font-semibold">{user.email}</p>
+          <p className="mt-0.5 text-sm text-muted">Member since {formatDay(user.created_at)}</p>
+          <p className="mt-1 font-mono text-xs text-muted">ID {user.id}</p>
+        </div>
+      </section>
+
+      <section className="mt-6">
+        <h2 className="text-sm font-semibold text-secondary">Your data</h2>
+        <div className="mt-3 grid gap-3 sm:grid-cols-3">
+          <div className="kpi">
+            <p className="kpi-label">Accounts</p>
+            <p className="kpi-value">{isLoading ? "—" : counts.accounts}</p>
+          </div>
+          <div className="kpi">
+            <p className="kpi-label">Statements</p>
+            <p className="kpi-value">{isLoading ? "—" : counts.statements}</p>
+          </div>
+          <div className="kpi">
+            <p className="kpi-label">Transactions</p>
+            <p className="kpi-value">{isLoading ? "—" : counts.transactions.toLocaleString()}</p>
+          </div>
+        </div>
+      </section>
 
       <section className="mt-8">
         <h2 className="text-sm font-semibold text-secondary">Active sessions</h2>

@@ -150,7 +150,7 @@ SHA-256 hashes of refresh tokens are stored.
   ever scales out.
 - **Audit log.** `audit_log` records login success/failure, refresh-reuse
   detection, statement upload/delete/download, and session revocation, with IP
-  and user-agent. Exposed per-user at `GET /auth/activity` and on the Settings
+  and user-agent. Exposed per-user at `GET /auth/activity` and on the Profile
   page.
 
 ## Measured metrics

@@ -1092,12 +1092,14 @@ Tailwind v4. `NEXT_PUBLIC_API_BASE_URL` (default `http://localhost:8000`).
   no user.
 - **`lib/endpoints.ts`** — one typed function per backend endpoint.
 - **`lib/types.ts`** — hand-written TS mirrors of the response schemas.
-- **Pages** (`app/<route>/page.tsx`): `login`, `register`, `/`
-  (dashboard), `transactions` (filters, recategorize, split modal),
+- **Pages** (`app/<route>/page.tsx`): `login`, `register`, `/` (redirect),
+  `dashboard` (KPIs, trend + category charts, recent activity),
+  `transactions` (filters, recategorize, split modal),
   `spending` (three charts), `anomalies` (feed, re-run, dismiss),
   `ask` (question box, example chips, result table + chart, history),
   `accounts`, `upload` (drop file, then a statements list with
-  download/delete), `admin` (metrics), `settings` (sessions + activity).
+  download/delete), `admin` (metrics), `profile` (identity, data
+  counts, sessions + activity), `guide` (in-app usage walkthrough).
 - **Charts** — `components/charts/*.tsx`, hand-rolled inline SVG
   (ranked bar, spend trend), themed via CSS variables.
 - **Build:** `next build` prerenders every route as a static shell

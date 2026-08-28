@@ -30,7 +30,7 @@ const NAV: NavGroup[] = [
     items: [
       { href: "/accounts", label: "Accounts" },
       { href: "/upload", label: "Upload" },
-      { href: "/settings", label: "Settings" },
+      { href: "/profile", label: "Profile" },
     ],
   },
   {
