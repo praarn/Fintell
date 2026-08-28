@@ -129,7 +129,7 @@ export function MobileTopBar() {
           Log out
         </button>
       </div>
-      <div className="-mx-1 flex gap-1 overflow-x-auto px-1">
+      <div className="-mx-1 flex gap-1 overflow-x-auto overscroll-x-contain px-1 pb-0.5">
         {FLAT.map((item) => {
           const active = pathname === item.href;
           return (
@@ -137,10 +137,10 @@ export function MobileTopBar() {
               key={item.href}
               href={item.href}
               aria-current={active ? "page" : undefined}
-              className={`shrink-0 rounded-md px-2.5 py-1.5 text-sm whitespace-nowrap transition-colors ${
+              className={`shrink-0 rounded-md px-3 py-2 text-sm whitespace-nowrap transition-colors ${
                 active
                   ? "bg-brand-soft font-semibold text-brand"
-                  : "text-muted hover:bg-surface-2 hover:text-content"
+                  : "text-secondary hover:bg-surface-2 hover:text-content"
               }`}
             >
               {item.label}

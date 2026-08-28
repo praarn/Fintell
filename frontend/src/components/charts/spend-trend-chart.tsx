@@ -36,6 +36,9 @@ export function SpendTrendChart({ points }: { points: SpendingTrendPoint[] }) {
       : "";
 
   const yTicks = [0, 0.5, 1].map((f) => Math.round(max * f));
+  // With a year of points the x labels collide once the SVG is scaled down
+  // to phone width — show every other one past a threshold.
+  const labelEvery = points.length > 8 ? 2 : 1;
 
   return (
     <div className="viz-root card card-pad">
@@ -60,7 +63,7 @@ export function SpendTrendChart({ points }: { points: SpendingTrendPoint[] }) {
                 y={y}
                 textAnchor="end"
                 dominantBaseline="middle"
-                fontSize={11}
+                fontSize={13}
                 fill="var(--viz-text-muted)"
               >
                 {formatMoney(tick)}
@@ -81,22 +84,24 @@ export function SpendTrendChart({ points }: { points: SpendingTrendPoint[] }) {
           />
         )}
 
-        {coords.map((c) => (
+        {coords.map((c, i) => (
           <g key={c.month}>
             <circle cx={c.x} cy={c.y} r={4} fill="var(--viz-series-1)" stroke="var(--viz-surface)" strokeWidth={2}>
               <title>
                 {c.month}: {formatMoney(c.value)}
               </title>
             </circle>
-            <text
-              x={c.x}
-              y={HEIGHT - PADDING.bottom + 16}
-              textAnchor="middle"
-              fontSize={11}
-              fill="var(--viz-text-muted)"
-            >
-              {formatMonth(c.month)}
-            </text>
+            {i % labelEvery === 0 && (
+              <text
+                x={c.x}
+                y={HEIGHT - PADDING.bottom + 17}
+                textAnchor="middle"
+                fontSize={13}
+                fill="var(--viz-text-muted)"
+              >
+                {formatMonth(c.month)}
+              </text>
+            )}
           </g>
         ))}
       </svg>

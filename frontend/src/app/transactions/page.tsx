@@ -97,14 +97,14 @@ export default function TransactionsPage() {
         </div>
       </div>
 
-      <div className="card card-pad mb-4 flex flex-wrap gap-3">
+      <div className="card card-pad mb-4 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
         <select
           value={accountId}
           onChange={(e) => {
             setPage(1);
             setAccountId(e.target.value);
           }}
-          className="select w-auto"
+          className="select w-full sm:w-auto"
         >
           <option value="">All accounts</option>
           {accounts.map((a) => (
@@ -119,7 +119,7 @@ export default function TransactionsPage() {
             setPage(1);
             setCategory(e.target.value);
           }}
-          className="select w-auto"
+          className="select w-full sm:w-auto"
         >
           <option value="">All categories</option>
           {CATEGORIES.map((c) => (
@@ -135,7 +135,7 @@ export default function TransactionsPage() {
             setSearch(e.target.value);
           }}
           placeholder="Search merchant…"
-          className="input w-auto flex-1 min-w-[12rem]"
+          className="input w-full sm:w-auto sm:flex-1 sm:min-w-[12rem]"
         />
       </div>
 
@@ -146,7 +146,7 @@ export default function TransactionsPage() {
               <th className="px-4 py-3">Date</th>
               <th className="px-4 py-3">Merchant</th>
               <th className="px-4 py-3">Category</th>
-              <th className="px-4 py-3">Categorized via</th>
+              <th className="hidden px-4 py-3 sm:table-cell">Categorized via</th>
               <th className="px-4 py-3 text-right">Amount</th>
               <th className="px-4 py-3"></th>
             </tr>
@@ -202,7 +202,7 @@ export default function TransactionsPage() {
                       </select>
                     )}
                   </td>
-                  <td className="px-4 py-2.5">
+                  <td className="hidden px-4 py-2.5 sm:table-cell">
                     <CategorizationBadge method={t.categorization_method} />
                   </td>
                   <td className="px-4 py-2.5 text-right whitespace-nowrap">

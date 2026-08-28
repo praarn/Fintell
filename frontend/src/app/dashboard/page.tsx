@@ -119,7 +119,7 @@ export default function DashboardPage() {
             income and transfers are excluded.
           </p>
         </div>
-        <Link href="/upload" className="btn btn-primary">
+        <Link href="/upload" className="btn btn-primary w-full sm:w-auto">
           Upload a statement
         </Link>
       </div>
@@ -190,8 +190,8 @@ export default function DashboardPage() {
                   <tr>
                     <th>Date</th>
                     <th>Merchant</th>
-                    <th>Category</th>
-                    <th>Via</th>
+                    <th className="hide-sm">Category</th>
+                    <th className="hide-sm">Via</th>
                     <th className="text-right">Amount</th>
                   </tr>
                 </thead>
@@ -213,8 +213,8 @@ export default function DashboardPage() {
                         <tr key={t.id}>
                           <td className="whitespace-nowrap text-muted tnum">{t.date}</td>
                           <td className="font-medium">{t.normalized_merchant ?? t.raw_merchant}</td>
-                          <td className="text-secondary">{t.category ?? "—"}</td>
-                          <td>
+                          <td className="hide-sm text-secondary">{t.category ?? "—"}</td>
+                          <td className="hide-sm">
                             <CategorizationBadge method={t.categorization_method} />
                           </td>
                           <td className={`num ${amt >= 0 ? "text-positive" : ""}`}>

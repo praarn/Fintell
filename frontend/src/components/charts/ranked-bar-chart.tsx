@@ -9,10 +9,10 @@ function formatMoney(value: number): string {
 
 export function RankedBarChart({ title, data }: { title: string; data: BarDatum[] }) {
   const max = Math.max(1, ...data.map((d) => d.value));
-  const rowHeight = 28;
-  const barMax = 24; // spec: bars capped at 24px thick
-  const labelWidth = 140;
-  const chartWidth = 420;
+  const rowHeight = 32;
+  const barMax = 26;
+  const labelWidth = 150;
+  const chartWidth = 400;
   const height = data.length * rowHeight + 8;
 
   if (data.length === 0) {
@@ -47,7 +47,7 @@ export function RankedBarChart({ title, data }: { title: string; data: BarDatum[
                 y={y}
                 textAnchor="end"
                 dominantBaseline="middle"
-                fontSize={12}
+                fontSize={15}
                 fill="var(--viz-text-secondary)"
               >
                 {d.label.length > 22 ? `${d.label.slice(0, 21)}…` : d.label}
@@ -68,7 +68,7 @@ export function RankedBarChart({ title, data }: { title: string; data: BarDatum[
                 x={labelWidth + barWidth + 8}
                 y={y}
                 dominantBaseline="middle"
-                fontSize={12}
+                fontSize={15}
                 fill="var(--viz-text-primary)"
               >
                 {formatMoney(d.value)}
