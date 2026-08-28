@@ -33,6 +33,10 @@ const NAV: NavGroup[] = [
       { href: "/settings", label: "Settings" },
     ],
   },
+  {
+    title: "Help",
+    items: [{ href: "/guide", label: "How to use Fintell" }],
+  },
 ];
 
 const FLAT = NAV.flatMap((g) => g.items);

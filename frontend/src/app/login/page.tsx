@@ -83,6 +83,12 @@ export default function LoginPage() {
           Demo account: <span className="font-mono">demo@fintell.app</span> /{" "}
           <span className="font-mono">demo-password-123</span>
         </p>
+        <p className="mt-2 text-center text-xs text-muted">
+          New here?{" "}
+          <Link href="/guide" className="link">
+            Read the guide
+          </Link>
+        </p>
       </div>
     </div>
   );
