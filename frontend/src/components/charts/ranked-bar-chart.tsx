@@ -17,10 +17,7 @@ export function RankedBarChart({ title, data }: { title: string; data: BarDatum[
 
   if (data.length === 0) {
     return (
-      <div
-        className="viz-root rounded-xl border p-4 text-sm"
-        style={{ borderColor: "var(--viz-baseline)", color: "var(--viz-text-secondary)" }}
-      >
+      <div className="viz-root card card-pad text-sm" style={{ color: "var(--viz-text-secondary)" }}>
         <h3 className="mb-2 font-medium" style={{ color: "var(--viz-text-primary)" }}>
           {title}
         </h3>
@@ -30,7 +27,7 @@ export function RankedBarChart({ title, data }: { title: string; data: BarDatum[
   }
 
   return (
-    <div className="viz-root rounded-xl border p-4" style={{ borderColor: "var(--viz-baseline)" }}>
+    <div className="viz-root card card-pad">
       <h3 className="mb-2 text-sm font-medium" style={{ color: "var(--viz-text-primary)" }}>
         {title}
       </h3>

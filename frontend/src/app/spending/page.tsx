@@ -60,14 +60,26 @@ export default function SpendingPage() {
     value: parseFloat(m.total_spend),
   }));
 
+  const topCategory = categoryBars[0];
+  const monthsCount = trend.length;
+  const avgPerMonth =
+    monthsCount > 0
+      ? trend.reduce((s, p) => s + parseFloat(p.total_spend), 0) / monthsCount
+      : 0;
+
   return (
-    <div className="mx-auto max-w-4xl px-6 py-10">
-      <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Spending</h1>
+    <div className="page max-w-5xl">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="page-title">Spending</h1>
+          <p className="page-lead">
+            Outflows only, reported as positive magnitudes. Income and transfers are excluded.
+          </p>
+        </div>
         <select
           value={accountId}
           onChange={(e) => setAccountId(e.target.value)}
-          className="rounded-md border border-black/[.12] px-3 py-1.5 text-sm dark:border-white/[.2] dark:bg-black"
+          className="select w-auto"
         >
           <option value="">All accounts</option>
           {accounts.map((a) => (
@@ -79,14 +91,35 @@ export default function SpendingPage() {
       </div>
 
       {isLoading ? (
-        <p className="text-sm text-zinc-500">Loading…</p>
+        <p className="mt-8 text-sm text-muted">Loading…</p>
       ) : (
-        <div className="space-y-6">
-          <div className="rounded-xl border border-black/[.08] p-6 dark:border-white/[.145]">
-            <p className="text-xs text-zinc-500">Total spend (all time)</p>
-            <p className="text-3xl font-semibold">
-              {byCategory ? formatMoney(parseFloat(byCategory.total_spend)) : "$0"}
-            </p>
+        <div className="mt-6 space-y-6">
+          <div className="grid gap-4 sm:grid-cols-3">
+            <div className="card card-pad card-hover">
+              <p className="text-xs font-medium text-muted uppercase tracking-wide">
+                Total spend (all time)
+              </p>
+              <p className="stat-value mt-2 text-3xl font-semibold">
+                {byCategory ? formatMoney(parseFloat(byCategory.total_spend)) : "$0"}
+              </p>
+            </div>
+            <div className="card card-pad card-hover">
+              <p className="text-xs font-medium text-muted uppercase tracking-wide">
+                Avg / month (last {monthsCount})
+              </p>
+              <p className="stat-value mt-2 text-3xl font-semibold">{formatMoney(avgPerMonth)}</p>
+            </div>
+            <div className="card card-pad card-hover">
+              <p className="text-xs font-medium text-muted uppercase tracking-wide">
+                Largest category
+              </p>
+              <p className="stat-value mt-2 text-3xl font-semibold capitalize">
+                {topCategory ? topCategory.label : "—"}
+              </p>
+              {topCategory && (
+                <p className="mt-1 text-xs text-muted">{formatMoney(topCategory.value)}</p>
+              )}
+            </div>
           </div>
 
           <SpendTrendChart points={trend} />

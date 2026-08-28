@@ -16,10 +16,15 @@ function Stat({
   sub?: string;
 }) {
   return (
-    <div className="rounded-xl border border-black/[.08] p-5 dark:border-white/[.145]">
-      <p className="text-xs text-zinc-500">{label}</p>
-      <p className="mt-1 text-2xl font-semibold tabular-nums">{value}</p>
-      {sub && <p className="mt-1 text-xs text-zinc-400">{sub}</p>}
+    <div className="card card-pad card-hover relative overflow-hidden">
+      <span
+        className="absolute inset-x-0 top-0 h-1"
+        style={{ backgroundImage: "linear-gradient(90deg, var(--brand), var(--accent))" }}
+        aria-hidden
+      />
+      <p className="text-xs font-medium text-muted uppercase tracking-wide">{label}</p>
+      <p className="stat-value mt-2 text-2xl font-semibold">{value}</p>
+      {sub && <p className="mt-1 text-xs text-muted">{sub}</p>}
     </div>
   );
 }
@@ -39,9 +44,9 @@ export default function AdminPage() {
   if (authLoading || !user) return null;
 
   return (
-    <div className="mx-auto max-w-4xl px-6 py-10">
-      <h1 className="text-xl font-semibold">Metrics &amp; cost</h1>
-      <p className="mt-2 text-sm text-zinc-500">
+    <div className="page max-w-4xl">
+      <h1 className="page-title">Metrics &amp; cost</h1>
+      <p className="page-lead">
         System-wide numbers, computed live. These are the &ldquo;does the cost-aware design actually
         work&rdquo; measurements — how much of categorization stays deterministic, how often a learned
         bank profile is reused, what the LLM has actually cost, and how many natural-language
@@ -49,11 +54,11 @@ export default function AdminPage() {
       </p>
 
       {isLoading || !metrics ? (
-        <p className="mt-6 text-sm text-zinc-500">Loading…</p>
+        <p className="mt-6 text-sm text-muted">Loading…</p>
       ) : (
         <div className="mt-6 space-y-8">
           <div>
-            <h2 className="mb-3 text-sm font-medium">Categorization</h2>
+            <h2 className="mb-3 text-sm font-semibold text-secondary">Categorization</h2>
             <div className="grid gap-4 sm:grid-cols-3">
               <Stat
                 label="Resolved without the LLM"
@@ -74,7 +79,7 @@ export default function AdminPage() {
           </div>
 
           <div>
-            <h2 className="mb-3 text-sm font-medium">Parsing</h2>
+            <h2 className="mb-3 text-sm font-semibold text-secondary">Parsing</h2>
             <div className="grid gap-4 sm:grid-cols-3">
               <Stat
                 label="Statements via a learned profile"
@@ -94,14 +99,16 @@ export default function AdminPage() {
           </div>
 
           <div>
-            <h2 className="mb-3 text-sm font-medium">Categorization method breakdown</h2>
-            <ul className="divide-y divide-black/[.06] text-sm dark:divide-white/[.08]">
+            <h2 className="mb-3 text-sm font-semibold text-secondary">
+              Categorization method breakdown
+            </h2>
+            <ul className="card divide-y divide-border text-sm">
               {Object.entries(metrics.categorization_by_method)
                 .sort((a, b) => b[1] - a[1])
                 .map(([method, count]) => (
-                  <li key={method} className="flex justify-between py-2">
-                    <span>{method.replace(/_/g, " ")}</span>
-                    <span className="tabular-nums text-zinc-500">{count}</span>
+                  <li key={method} className="flex justify-between px-4 py-2.5">
+                    <span className="capitalize">{method.replace(/_/g, " ")}</span>
+                    <span className="tabular-nums text-muted">{count}</span>
                   </li>
                 ))}
             </ul>

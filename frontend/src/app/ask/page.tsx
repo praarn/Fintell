@@ -48,23 +48,23 @@ function ChartView({ chart }: { chart: AskChart }) {
 function AnswerCard({ answer }: { answer: AskResponse }) {
   if (!answer.answered) {
     return (
-      <div className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-900/40 dark:bg-amber-950/30 dark:text-amber-200">
+      <div className="card card-pad border-l-4 !border-l-warning bg-warning-soft/40 text-sm text-secondary">
         {answer.summary}
       </div>
     );
   }
 
   return (
-    <div className="space-y-4 rounded-xl border border-black/[.08] p-5 dark:border-white/[.145]">
+    <div className="card card-pad space-y-4">
       <p className="text-base">{answer.summary}</p>
 
       {answer.rows.length > 0 && (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-black/[.08] text-left text-zinc-500 dark:border-white/[.145]">
+              <tr className="border-b border-border text-left text-xs font-medium tracking-wide text-muted uppercase">
                 {answer.columns.map((col) => (
-                  <th key={col} className="py-1.5 pr-4 font-medium">
+                  <th key={col} className="py-2 pr-4">
                     {col.replace(/_/g, " ")}
                   </th>
                 ))}
@@ -72,12 +72,9 @@ function AnswerCard({ answer }: { answer: AskResponse }) {
             </thead>
             <tbody>
               {answer.rows.map((row, i) => (
-                <tr
-                  key={i}
-                  className="border-b border-black/[.04] last:border-0 dark:border-white/[.06]"
-                >
+                <tr key={i} className="border-b border-border/60 last:border-0">
                   {row.map((cell, j) => (
-                    <td key={j} className="py-1.5 pr-4 tabular-nums">
+                    <td key={j} className="py-2 pr-4 tabular-nums">
                       {formatCell(cell)}
                     </td>
                   ))}
@@ -90,8 +87,8 @@ function AnswerCard({ answer }: { answer: AskResponse }) {
 
       {answer.chart && <ChartView chart={answer.chart} />}
 
-      <p className="text-xs text-zinc-400">
-        Matched <span className="font-mono">{answer.matched_template}</span>
+      <p className="text-xs text-muted">
+        Matched <span className="font-mono text-secondary">{answer.matched_template}</span>
         {answer.confidence !== null && ` · ${Math.round(answer.confidence * 100)}% confidence`}
       </p>
     </div>
@@ -137,9 +134,9 @@ export default function AskPage() {
   if (authLoading || !user) return null;
 
   return (
-    <div className="mx-auto max-w-3xl px-6 py-10">
-      <h1 className="text-xl font-semibold">Ask your finances</h1>
-      <p className="mt-2 text-sm text-zinc-500">
+    <div className="page max-w-3xl">
+      <h1 className="page-title">Ask your finances</h1>
+      <p className="page-lead">
         Ask in plain language. Questions are mapped to a fixed set of reviewed queries against your
         own transactions — the model never writes SQL, and it says so honestly when nothing fits.
         Every answer shows the underlying numbers so you can check it.
@@ -157,12 +154,12 @@ export default function AskPage() {
           onChange={(e) => setQuestion(e.target.value)}
           placeholder="How much did I spend on groceries last month?"
           maxLength={500}
-          className="flex-1 rounded-lg border border-black/[.12] px-3 py-2 text-sm outline-none focus:border-black/[.3] dark:border-white/[.2] dark:bg-black dark:focus:border-white/[.4]"
+          className="input flex-1"
         />
         <button
           type="submit"
           disabled={isAsking || !question.trim()}
-          className="rounded-lg border border-black/[.12] px-4 py-2 text-sm hover:bg-black/[.04] disabled:opacity-50 dark:border-white/[.2] dark:hover:bg-white/[.08]"
+          className="btn btn-primary shrink-0"
         >
           {isAsking ? "Asking…" : "Ask"}
         </button>
@@ -177,7 +174,7 @@ export default function AskPage() {
               submit(ex);
             }}
             disabled={isAsking}
-            className="rounded-full border border-black/[.08] px-3 py-1 text-xs text-zinc-600 hover:bg-black/[.04] disabled:opacity-50 dark:border-white/[.145] dark:text-zinc-300 dark:hover:bg-white/[.08]"
+            className="chip border border-border bg-surface text-secondary hover:border-brand hover:text-brand disabled:opacity-50"
           >
             {ex}
           </button>
@@ -185,9 +182,7 @@ export default function AskPage() {
       </div>
 
       {error && (
-        <p className="mt-4 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700 dark:bg-red-950/30 dark:text-red-300">
-          {error}
-        </p>
+        <p className="mt-4 rounded-lg bg-negative-soft px-3 py-2 text-sm text-negative">{error}</p>
       )}
 
       {answer && (
@@ -198,7 +193,7 @@ export default function AskPage() {
 
       {history.length > 0 && (
         <div className="mt-10">
-          <h2 className="text-sm font-medium text-zinc-500">Recent questions</h2>
+          <h2 className="text-sm font-semibold text-secondary">Recent questions</h2>
           <ul className="mt-2 space-y-1">
             {history.map((item) => (
               <li key={item.id}>
@@ -208,10 +203,10 @@ export default function AskPage() {
                     submit(item.question_text);
                   }}
                   disabled={isAsking}
-                  className="flex w-full items-baseline justify-between gap-4 rounded-md px-2 py-1.5 text-left text-sm hover:bg-black/[.04] disabled:opacity-50 dark:hover:bg-white/[.06]"
+                  className="flex w-full items-baseline justify-between gap-4 rounded-lg px-2 py-1.5 text-left text-sm hover:bg-surface-2 disabled:opacity-50"
                 >
                   <span className="truncate">{item.question_text}</span>
-                  <span className="shrink-0 text-xs text-zinc-400">
+                  <span className="shrink-0 text-xs text-muted">
                     {item.declined ? "declined" : (item.matched_template ?? "")}
                   </span>
                 </button>

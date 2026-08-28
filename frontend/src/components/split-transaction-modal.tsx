@@ -69,14 +69,15 @@ export function SplitTransactionModal({
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4 backdrop-blur-sm">
       <form
         onSubmit={handleSubmit}
-        className="w-full max-w-md space-y-4 rounded-xl bg-white p-6 dark:bg-zinc-950"
+        className="card w-full max-w-md space-y-4 p-6"
+        style={{ boxShadow: "var(--shadow-lg)" }}
       >
         <div>
           <h2 className="text-lg font-semibold">Split transaction</h2>
-          <p className="text-sm text-zinc-500">
+          <p className="text-sm text-muted">
             {transaction.raw_merchant} · {transaction.amount}
           </p>
         </div>
@@ -87,7 +88,7 @@ export function SplitTransactionModal({
               <select
                 value={row.category}
                 onChange={(e) => updateRow(i, { category: e.target.value })}
-                className="flex-1 rounded-md border border-black/[.12] px-2 py-1.5 text-sm dark:border-white/[.2] dark:bg-black"
+                className="select flex-1 !py-1.5"
               >
                 {CATEGORIES.map((c) => (
                   <option key={c} value={c}>
@@ -99,13 +100,13 @@ export function SplitTransactionModal({
                 value={row.amount}
                 onChange={(e) => updateRow(i, { amount: e.target.value })}
                 placeholder="0.00"
-                className="w-28 rounded-md border border-black/[.12] px-2 py-1.5 text-sm dark:border-white/[.2] dark:bg-black"
+                className="input w-28 !py-1.5"
               />
               {rows.length > 2 && (
                 <button
                   type="button"
                   onClick={() => setRows((prev) => prev.filter((_, idx) => idx !== i))}
-                  className="text-xs text-zinc-500 hover:text-red-600"
+                  className="text-xs text-muted hover:text-negative"
                 >
                   Remove
                 </button>
@@ -117,39 +118,32 @@ export function SplitTransactionModal({
         <button
           type="button"
           onClick={() => setRows((prev) => [...prev, { category: CATEGORIES[0], amount: "" }])}
-          className="text-sm text-zinc-500 hover:text-black dark:hover:text-white"
+          className="text-sm font-medium text-brand hover:text-brand-strong"
         >
           + Add category
         </button>
 
-        <p className="text-xs text-zinc-500">
-          Remaining to allocate: <span className="font-medium">{remaining.toFixed(2)}</span>
+        <p className="text-xs text-muted">
+          Remaining to allocate:{" "}
+          <span className="font-medium text-secondary tabular-nums">{remaining.toFixed(2)}</span>
         </p>
 
-        {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
+        {error && <p className="text-sm text-negative">{error}</p>}
 
         <div className="flex items-center justify-between pt-2">
           <button
             type="button"
             onClick={handleUnsplit}
             disabled={isSubmitting || !transaction.is_split}
-            className="text-sm text-zinc-500 hover:text-red-600 disabled:opacity-40"
+            className="text-sm text-muted hover:text-negative disabled:opacity-40"
           >
             Remove split
           </button>
           <div className="flex gap-2">
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-full border border-black/[.12] px-4 py-2 text-sm dark:border-white/[.2]"
-            >
+            <button type="button" onClick={onClose} className="btn btn-ghost">
               Cancel
             </button>
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="rounded-full bg-black px-4 py-2 text-sm font-medium text-white disabled:opacity-50 dark:bg-white dark:text-black"
-            >
+            <button type="submit" disabled={isSubmitting} className="btn btn-primary">
               Save split
             </button>
           </div>

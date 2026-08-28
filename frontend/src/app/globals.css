@@ -1,63 +1,289 @@
 @import "tailwindcss";
 
+/* ------------------------------------------------------------------ *
+ * Design tokens — one light palette on :root, redefined for dark.
+ * Utilities below reference these through `@theme inline`, so the
+ * dark overrides take effect at runtime with no rebuild.
+ * ------------------------------------------------------------------ */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
+  --bg: #f4f5fb;
+  --bg-accent: #e9ebf9;
+  --surface: #ffffff;
+  --surface-2: #f7f8fc;
+  --surface-3: #eef0f8;
+  --border: #e4e6f0;
+  --border-strong: #d3d6e4;
+  --text: #14161f;
+  --text-secondary: #4a4f61;
+  --text-muted: #7b8194;
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --brand: #5b53e0;
+  --brand-strong: #4a41d4;
+  --brand-soft: #ecebfd;
+  --brand-fg: #ffffff;
+
+  --accent: #0891b2;
+  --positive: #0f9d6b;
+  --positive-soft: #dcf5eb;
+  --negative: #dc3d47;
+  --negative-soft: #fde7e8;
+  --warning: #d98016;
+  --warning-soft: #fbedd8;
+
+  --ring: color-mix(in srgb, var(--brand) 35%, transparent);
+  --shadow-sm: 0 1px 2px rgb(20 22 31 / 0.06), 0 1px 3px rgb(20 22 31 / 0.04);
+  --shadow-md: 0 8px 24px -6px rgb(20 22 31 / 0.12), 0 3px 8px -4px rgb(20 22 31 / 0.08);
+  --shadow-lg: 0 24px 60px -12px rgb(20 22 31 / 0.22);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --bg: #0a0b11;
+    --bg-accent: #12131d;
+    --surface: #14151e;
+    --surface-2: #1a1c27;
+    --surface-3: #22242f;
+    --border: #292c39;
+    --border-strong: #363a49;
+    --text: #f2f3f8;
+    --text-secondary: #c4c8d4;
+    --text-muted: #8b90a2;
+
+    --brand: #8c85f5;
+    --brand-strong: #a29cf8;
+    --brand-soft: #201f3a;
+    --brand-fg: #0a0b11;
+
+    --accent: #38bdf8;
+    --positive: #34d29e;
+    --positive-soft: #10281f;
+    --negative: #f2686f;
+    --negative-soft: #2a1315;
+    --warning: #f0a94b;
+    --warning-soft: #2a1e0e;
+
+    --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
+    --shadow-md: 0 10px 30px -8px rgb(0 0 0 / 0.55);
+    --shadow-lg: 0 30px 70px -16px rgb(0 0 0 / 0.7);
   }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-bg-accent: var(--bg-accent);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-surface-3: var(--surface-3);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-content: var(--text);
+  --color-secondary: var(--text-secondary);
+  --color-muted: var(--text-muted);
+
+  --color-brand: var(--brand);
+  --color-brand-strong: var(--brand-strong);
+  --color-brand-soft: var(--brand-soft);
+  --color-brand-fg: var(--brand-fg);
+
+  --color-accent: var(--accent);
+  --color-positive: var(--positive);
+  --color-positive-soft: var(--positive-soft);
+  --color-negative: var(--negative);
+  --color-negative-soft: var(--negative-soft);
+  --color-warning: var(--warning);
+  --color-warning-soft: var(--warning-soft);
+
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  min-height: 100vh;
+  background-color: var(--bg);
+  background-image:
+    radial-gradient(60rem 60rem at 108% -10%, color-mix(in srgb, var(--brand) 14%, transparent), transparent 60%),
+    radial-gradient(50rem 50rem at -20% 10%, color-mix(in srgb, var(--accent) 10%, transparent), transparent 55%);
+  background-attachment: fixed;
+  color: var(--text);
+  font-family: var(--font-sans);
 }
 
-/* Data-viz palette (see dataviz skill references/palette.md) */
-.viz-root {
-  color-scheme: light;
-  --viz-surface: #fcfcfb;
-  --viz-text-primary: #0b0b0b;
-  --viz-text-secondary: #52514e;
-  --viz-text-muted: #898781;
-  --viz-gridline: #e1e0d9;
-  --viz-baseline: #c3c2b7;
-  --viz-series-1: #2a78d6;
-  --viz-series-1-wash: rgb(42 120 214 / 10%);
-}
-@media (prefers-color-scheme: dark) {
-  :root:where(:not([data-theme="light"])) .viz-root {
-    color-scheme: dark;
-    --viz-surface: #1a1a19;
-    --viz-text-primary: #ffffff;
-    --viz-text-secondary: #c3c2b7;
-    --viz-text-muted: #898781;
-    --viz-gridline: #2c2c2a;
-    --viz-baseline: #383835;
-    --viz-series-1: #3987e5;
-    --viz-series-1-wash: rgb(57 135 229 / 10%);
+/* ------------------------------------------------------------------ *
+ * Reusable component classes — keep page markup lean and consistent.
+ * ------------------------------------------------------------------ */
+@layer components {
+  .page {
+    margin-inline: auto;
+    width: 100%;
+    padding-inline: 1.5rem;
+    padding-block: 2.5rem 4rem;
+  }
+
+  .page-title {
+    font-size: 1.5rem;
+    line-height: 1.2;
+    font-weight: 650;
+    letter-spacing: -0.02em;
+    color: var(--text);
+  }
+
+  .page-lead {
+    margin-top: 0.6rem;
+    max-width: 60ch;
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: var(--text-muted);
+  }
+
+  .card {
+    border: 1px solid var(--border);
+    background-color: var(--surface);
+    border-radius: 16px;
+    box-shadow: var(--shadow-sm);
+  }
+
+  .card-pad {
+    padding: 1.5rem;
+  }
+
+  .card-hover {
+    transition: box-shadow 0.18s ease, transform 0.18s ease, border-color 0.18s ease;
+  }
+  .card-hover:hover {
+    box-shadow: var(--shadow-md);
+    border-color: var(--border-strong);
+    transform: translateY(-2px);
+  }
+
+  .input,
+  .select {
+    width: 100%;
+    border: 1px solid var(--border-strong);
+    background-color: var(--surface);
+    color: var(--text);
+    border-radius: 10px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .input::placeholder {
+    color: var(--text-muted);
+  }
+  .input:focus,
+  .select:focus {
+    outline: none;
+    border-color: var(--brand);
+    box-shadow: 0 0 0 3px var(--ring);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    border-radius: 10px;
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+    font-weight: 550;
+    cursor: pointer;
+    transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease,
+      box-shadow 0.15s ease, transform 0.05s ease;
+  }
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+  .btn:not(:disabled):active {
+    transform: translateY(1px);
+  }
+
+  .btn-primary {
+    background-image: linear-gradient(180deg, var(--brand) 0%, var(--brand-strong) 100%);
+    color: var(--brand-fg);
+    box-shadow: 0 1px 2px rgb(20 22 31 / 0.12), inset 0 1px 0 rgb(255 255 255 / 0.12);
+  }
+  .btn-primary:not(:disabled):hover {
+    box-shadow: 0 6px 18px -6px var(--ring), inset 0 1px 0 rgb(255 255 255 / 0.12);
+  }
+
+  .btn-ghost {
+    border: 1px solid var(--border-strong);
+    background-color: var(--surface);
+    color: var(--text-secondary);
+  }
+  .btn-ghost:not(:disabled):hover {
+    background-color: var(--surface-2);
+    color: var(--text);
+    border-color: var(--border-strong);
+  }
+
+  .btn-danger {
+    border: 1px solid color-mix(in srgb, var(--negative) 35%, transparent);
+    background-color: var(--negative-soft);
+    color: var(--negative);
+  }
+  .btn-danger:not(:disabled):hover {
+    background-color: color-mix(in srgb, var(--negative) 16%, transparent);
+  }
+
+  .btn-sm {
+    padding: 0.3rem 0.7rem;
+    font-size: 0.78rem;
+    border-radius: 8px;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    border-radius: 999px;
+    padding: 0.15rem 0.6rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+  }
+
+  .link {
+    color: var(--brand);
+    font-weight: 550;
+  }
+  .link:hover {
+    color: var(--brand-strong);
+  }
+
+  .stat-value {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.02em;
+  }
+
+  .surface-muted {
+    background-color: var(--surface-2);
   }
 }
-:root[data-theme="dark"] .viz-root {
-  color-scheme: dark;
-  --viz-surface: #1a1a19;
-  --viz-text-primary: #ffffff;
-  --viz-text-secondary: #c3c2b7;
-  --viz-text-muted: #898781;
-  --viz-gridline: #2c2c2a;
-  --viz-baseline: #383835;
-  --viz-series-1: #3987e5;
-  --viz-series-1-wash: rgb(57 135 229 / 10%);
+
+/* ------------------------------------------------------------------ *
+ * Data-viz palette — consumed by the SVG chart components. Aligned
+ * to the brand so charts read as part of the same system.
+ * ------------------------------------------------------------------ */
+.viz-root {
+  color-scheme: light;
+  --viz-surface: var(--surface);
+  --viz-text-primary: var(--text);
+  --viz-text-secondary: var(--text-secondary);
+  --viz-text-muted: var(--text-muted);
+  --viz-gridline: var(--border);
+  --viz-baseline: var(--border-strong);
+  --viz-series-1: #5b53e0;
+  --viz-series-1-wash: color-mix(in srgb, #5b53e0 12%, transparent);
+}
+@media (prefers-color-scheme: dark) {
+  .viz-root {
+    color-scheme: dark;
+    --viz-series-1: #8c85f5;
+    --viz-series-1-wash: color-mix(in srgb, #8c85f5 16%, transparent);
+  }
 }

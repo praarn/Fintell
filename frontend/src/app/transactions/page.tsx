@@ -15,6 +15,20 @@ import { useRequireAuth } from "@/lib/use-require-auth";
 
 const PAGE_SIZE = 25;
 
+function AmountCell({ value }: { value: string }) {
+  const n = parseFloat(value);
+  const negative = n < 0;
+  return (
+    <span
+      className={`stat-value font-medium ${negative ? "text-content" : "text-positive"}`}
+      title={negative ? "Outflow" : "Inflow"}
+    >
+      {negative ? "" : "+"}
+      {n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+    </span>
+  );
+}
+
 export default function TransactionsPage() {
   const { user, isLoading: authLoading } = useRequireAuth();
   const [accounts, setAccounts] = useState<Account[]>([]);
@@ -71,17 +85,21 @@ export default function TransactionsPage() {
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
 
   return (
-    <div className="mx-auto max-w-5xl px-6 py-10">
-      <h1 className="mb-6 text-xl font-semibold">Transactions</h1>
+    <div className="page max-w-6xl">
+      <h1 className="page-title">Transactions</h1>
+      <p className="page-lead">
+        Every parsed row, with the tier that categorized it. Re-categorize inline or split a charge
+        across categories.
+      </p>
 
-      <div className="mb-4 flex flex-wrap gap-3">
+      <div className="card card-pad mt-6 mb-4 flex flex-wrap gap-3">
         <select
           value={accountId}
           onChange={(e) => {
             setPage(1);
             setAccountId(e.target.value);
           }}
-          className="rounded-md border border-black/[.12] px-3 py-1.5 text-sm dark:border-white/[.2] dark:bg-black"
+          className="select w-auto"
         >
           <option value="">All accounts</option>
           {accounts.map((a) => (
@@ -96,7 +114,7 @@ export default function TransactionsPage() {
             setPage(1);
             setCategory(e.target.value);
           }}
-          className="rounded-md border border-black/[.12] px-3 py-1.5 text-sm dark:border-white/[.2] dark:bg-black"
+          className="select w-auto"
         >
           <option value="">All categories</option>
           {CATEGORIES.map((c) => (
@@ -112,32 +130,32 @@ export default function TransactionsPage() {
             setSearch(e.target.value);
           }}
           placeholder="Search merchant…"
-          className="rounded-md border border-black/[.12] px-3 py-1.5 text-sm dark:border-white/[.2] dark:bg-black"
+          className="input w-auto flex-1 min-w-[12rem]"
         />
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-black/[.08] dark:border-white/[.145]">
+      <div className="card overflow-x-auto">
         <table className="w-full text-sm">
-          <thead className="border-b border-black/[.08] text-left text-xs text-zinc-500 dark:border-white/[.1]">
-            <tr>
-              <th className="px-4 py-2">Date</th>
-              <th className="px-4 py-2">Merchant</th>
-              <th className="px-4 py-2">Category</th>
-              <th className="px-4 py-2">Categorized via</th>
-              <th className="px-4 py-2 text-right">Amount</th>
-              <th className="px-4 py-2"></th>
+          <thead>
+            <tr className="border-b border-border text-left text-xs font-medium tracking-wide text-muted uppercase">
+              <th className="px-4 py-3">Date</th>
+              <th className="px-4 py-3">Merchant</th>
+              <th className="px-4 py-3">Category</th>
+              <th className="px-4 py-3">Categorized via</th>
+              <th className="px-4 py-3 text-right">Amount</th>
+              <th className="px-4 py-3"></th>
             </tr>
           </thead>
           <tbody>
             {isLoading ? (
               <tr>
-                <td colSpan={6} className="px-4 py-6 text-center text-zinc-500">
+                <td colSpan={6} className="px-4 py-10 text-center text-muted">
                   Loading…
                 </td>
               </tr>
             ) : transactions.length === 0 ? (
               <tr>
-                <td colSpan={6} className="px-4 py-6 text-center text-zinc-500">
+                <td colSpan={6} className="px-4 py-10 text-center text-muted">
                   No transactions match these filters.
                 </td>
               </tr>
@@ -145,32 +163,28 @@ export default function TransactionsPage() {
               transactions.map((t) => (
                 <tr
                   key={t.id}
-                  className="border-b border-black/[.05] last:border-0 dark:border-white/[.06]"
+                  className="border-b border-border/60 transition-colors last:border-0 hover:bg-surface-2"
                 >
-                  <td className="px-4 py-2 whitespace-nowrap">{t.date}</td>
-                  <td className="px-4 py-2">
+                  <td className="px-4 py-2.5 whitespace-nowrap text-muted tabular-nums">{t.date}</td>
+                  <td className="px-4 py-2.5">
                     <div className="flex items-center gap-2">
-                      <span>{t.normalized_merchant ?? t.raw_merchant}</span>
+                      <span className="font-medium">{t.normalized_merchant ?? t.raw_merchant}</span>
                       {t.is_split && (
-                        <span className="rounded-full bg-fuchsia-100 px-2 py-0.5 text-xs text-fuchsia-800 dark:bg-fuchsia-900/40 dark:text-fuchsia-300">
-                          Split
-                        </span>
+                        <span className="chip bg-brand-soft text-brand">Split</span>
                       )}
                       {recurringIds.has(t.id) && (
-                        <span className="rounded-full bg-teal-100 px-2 py-0.5 text-xs text-teal-800 dark:bg-teal-900/40 dark:text-teal-300">
-                          Recurring
-                        </span>
+                        <span className="chip bg-positive-soft text-positive">Recurring</span>
                       )}
                     </div>
                   </td>
-                  <td className="px-4 py-2">
+                  <td className="px-4 py-2.5">
                     {t.is_split ? (
-                      <span className="text-zinc-500">split across categories</span>
+                      <span className="text-muted">split across categories</span>
                     ) : (
                       <select
                         value={t.category ?? ""}
                         onChange={(e) => handleRecategorize(t, e.target.value)}
-                        className="rounded-md border border-black/[.12] bg-transparent px-2 py-1 text-xs dark:border-white/[.2]"
+                        className="select w-auto !py-1 text-xs"
                       >
                         <option value="" disabled>
                           Uncategorized
@@ -183,14 +197,16 @@ export default function TransactionsPage() {
                       </select>
                     )}
                   </td>
-                  <td className="px-4 py-2">
+                  <td className="px-4 py-2.5">
                     <CategorizationBadge method={t.categorization_method} />
                   </td>
-                  <td className="px-4 py-2 text-right whitespace-nowrap">{t.amount}</td>
-                  <td className="px-4 py-2 text-right">
+                  <td className="px-4 py-2.5 text-right whitespace-nowrap">
+                    <AmountCell value={t.amount} />
+                  </td>
+                  <td className="px-4 py-2.5 text-right">
                     <button
                       onClick={() => setSplitTarget(t)}
-                      className="text-xs text-zinc-500 hover:text-black dark:hover:text-white"
+                      className="text-xs font-medium text-muted hover:text-brand"
                     >
                       Split
                     </button>
@@ -202,25 +218,25 @@ export default function TransactionsPage() {
         </table>
       </div>
 
-      <div className="mt-4 flex items-center justify-between text-sm text-zinc-500">
+      <div className="mt-4 flex items-center justify-between text-sm text-muted">
         <span>
           {total} transaction{total === 1 ? "" : "s"}
         </span>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <button
             disabled={page <= 1}
             onClick={() => setPage((p) => p - 1)}
-            className="disabled:opacity-40"
+            className="btn btn-ghost btn-sm"
           >
             Previous
           </button>
-          <span>
+          <span className="tabular-nums">
             Page {page} of {totalPages}
           </span>
           <button
             disabled={page >= totalPages}
             onClick={() => setPage((p) => p + 1)}
-            className="disabled:opacity-40"
+            className="btn btn-ghost btn-sm"
           >
             Next
           </button>

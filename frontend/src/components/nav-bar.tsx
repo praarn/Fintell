@@ -16,6 +16,21 @@ const LINKS = [
   { href: "/settings", label: "Settings" },
 ];
 
+function BrandMark() {
+  return (
+    <span className="flex items-center gap-2">
+      <span
+        className="grid h-7 w-7 place-items-center rounded-lg text-[13px] font-bold text-white shadow-sm"
+        style={{ backgroundImage: "linear-gradient(140deg, var(--brand) 0%, var(--accent) 100%)" }}
+        aria-hidden
+      >
+        F
+      </span>
+      <span className="text-sm font-semibold tracking-tight text-content">Fintell</span>
+    </span>
+  );
+}
+
 export function NavBar() {
   const { user, logout } = useAuth();
   const pathname = usePathname();
@@ -24,34 +39,44 @@ export function NavBar() {
   if (!user) return null;
 
   return (
-    <nav className="flex items-center justify-between border-b border-black/[.08] bg-white px-6 py-3 dark:border-white/[.145] dark:bg-black">
-      <div className="flex items-center gap-6">
-        <span className="text-sm font-semibold tracking-tight">Fintell</span>
-        {LINKS.map((link) => (
-          <Link
-            key={link.href}
-            href={link.href}
-            className={`text-sm ${
-              pathname === link.href
-                ? "font-medium text-black dark:text-white"
-                : "text-zinc-500 hover:text-black dark:text-zinc-400 dark:hover:text-white"
-            }`}
-          >
-            {link.label}
+    <nav className="sticky top-0 z-40 border-b border-border bg-surface/80 backdrop-blur-md">
+      <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-6 py-2.5">
+        <div className="flex items-center gap-1">
+          <Link href="/transactions" className="mr-3 shrink-0">
+            <BrandMark />
           </Link>
-        ))}
-      </div>
-      <div className="flex items-center gap-3 text-sm text-zinc-500 dark:text-zinc-400">
-        <span>{user.email}</span>
-        <button
-          onClick={async () => {
-            await logout();
-            router.replace("/login");
-          }}
-          className="rounded-full border border-black/[.08] px-3 py-1 hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-white/[.08]"
-        >
-          Log out
-        </button>
+          <div className="flex items-center gap-0.5 overflow-x-auto">
+            {LINKS.map((link) => {
+              const active = pathname === link.href;
+              return (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  aria-current={active ? "page" : undefined}
+                  className={`rounded-lg px-2.5 py-1.5 text-sm whitespace-nowrap transition-colors ${
+                    active
+                      ? "bg-brand-soft font-semibold text-brand"
+                      : "text-muted hover:bg-surface-2 hover:text-content"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+        <div className="flex shrink-0 items-center gap-3">
+          <span className="hidden text-xs text-muted sm:inline">{user.email}</span>
+          <button
+            onClick={async () => {
+              await logout();
+              router.replace("/login");
+            }}
+            className="btn btn-ghost btn-sm"
+          >
+            Log out
+          </button>
+        </div>
       </div>
     </nav>
   );

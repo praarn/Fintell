@@ -38,7 +38,7 @@ export function SpendTrendChart({ points }: { points: SpendingTrendPoint[] }) {
   const yTicks = [0, 0.5, 1].map((f) => Math.round(max * f));
 
   return (
-    <div className="viz-root rounded-xl border p-4" style={{ borderColor: "var(--viz-baseline)" }}>
+    <div className="viz-root card card-pad">
       <h3 className="mb-2 text-sm font-medium" style={{ color: "var(--viz-text-primary)" }}>
         Monthly spend
       </h3>

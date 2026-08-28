@@ -22,6 +22,11 @@ services:
         required: false
     environment:
       DATABASE_URL: postgresql+asyncpg://finance:finance@postgres:5432/finance
+    # Apply migrations on start, then serve. Seeding is a separate opt-in step
+    # (see commands.md) so a restart never rebuilds demo data.
+    command: >
+      sh -c "uv run alembic upgrade head &&
+             uv run uvicorn app.main:app --host 0.0.0.0 --port 8000"
     ports:
       - "8000:8000"
     depends_on:

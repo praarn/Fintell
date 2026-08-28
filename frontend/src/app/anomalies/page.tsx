@@ -13,9 +13,9 @@ import type { AnomalyFlag, AnomalySeverity, AnomalyStats } from "@/lib/types";
 import { useRequireAuth } from "@/lib/use-require-auth";
 
 const SEVERITY_STYLES: Record<AnomalySeverity, string> = {
-  high: "bg-red-100 text-red-800 dark:bg-red-900/40 dark:text-red-300",
-  medium: "bg-amber-100 text-amber-800 dark:bg-amber-900/40 dark:text-amber-300",
-  low: "bg-zinc-100 text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400",
+  high: "bg-negative-soft text-negative",
+  medium: "bg-warning-soft text-warning",
+  low: "bg-surface-3 text-muted",
 };
 
 function formatMoney(value: string): string {
@@ -84,89 +84,81 @@ export default function AnomaliesPage() {
   if (authLoading || !user) return null;
 
   return (
-    <div className="mx-auto max-w-3xl px-6 py-10">
-      <div className="mb-2 flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Anomalies</h1>
-        <button
-          onClick={handleRun}
-          disabled={isRunning}
-          className="rounded-full border border-black/[.12] px-3 py-1.5 text-sm hover:bg-black/[.04] disabled:opacity-50 dark:border-white/[.2] dark:hover:bg-white/[.08]"
-        >
+    <div className="page max-w-3xl">
+      <div className="flex flex-wrap items-start justify-between gap-4">
+        <div>
+          <h1 className="page-title">Anomalies</h1>
+          <p className="page-lead">
+            A per-account{" "}
+            <span className="font-medium text-secondary">IsolationForest</span> over your own
+            spending. Each flag lists the feature(s) that drove it — an unusual amount for the
+            category, a first-seen merchant, off-pattern timing. Dismissing a flag tells the model
+            that pattern is normal for you.
+          </p>
+        </div>
+        <button onClick={handleRun} disabled={isRunning} className="btn btn-ghost btn-sm shrink-0">
           {isRunning ? "Running…" : "Re-run detection"}
         </button>
       </div>
 
-      <p className="mb-6 text-sm text-zinc-500">
-        A per-account{" "}
-        <span className="font-medium text-zinc-700 dark:text-zinc-300">IsolationForest</span> over
-        your own spending. Each flag lists the feature(s) that drove it — an unusual amount for the
-        category, a first-seen merchant, off-pattern timing. Dismissing a flag tells the model that
-        pattern is normal for you.
-      </p>
-
       {notice && (
-        <p className="mb-4 rounded-lg bg-black/[.04] px-3 py-2 text-sm text-zinc-600 dark:bg-white/[.06] dark:text-zinc-300">
-          {notice}
-        </p>
+        <p className="mt-4 rounded-lg surface-muted px-3 py-2 text-sm text-secondary">{notice}</p>
       )}
 
       {stats && stats.total_flags > 0 && (
-        <div className="mb-6 flex flex-wrap gap-4 text-sm text-zinc-500">
-          <span>{stats.active_flags} active</span>
-          <span>{stats.dismissed_flags} dismissed</span>
-          <span>{Math.round(stats.dismissal_rate * 100)}% dismissal rate</span>
+        <div className="mt-5 flex flex-wrap gap-2">
+          <span className="chip surface-muted text-secondary">{stats.active_flags} active</span>
+          <span className="chip surface-muted text-secondary">
+            {stats.dismissed_flags} dismissed
+          </span>
+          <span className="chip surface-muted text-secondary">
+            {Math.round(stats.dismissal_rate * 100)}% dismissal rate
+          </span>
         </div>
       )}
 
       {isLoading ? (
-        <p className="text-sm text-zinc-500">Loading…</p>
+        <p className="mt-8 text-sm text-muted">Loading…</p>
       ) : flags.length === 0 ? (
-        <p className="text-sm text-zinc-500">
+        <p className="mt-8 text-sm text-muted">
           Nothing flagged. Upload more statements or re-run detection as your history grows.
         </p>
       ) : (
-        <ul className="space-y-3">
+        <ul className="mt-6 space-y-3">
           {flags.map((flag) => (
-            <li
-              key={flag.id}
-              className="rounded-xl border border-black/[.08] p-4 dark:border-white/[.145]"
-            >
+            <li key={flag.id} className="card card-pad card-hover">
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${SEVERITY_STYLES[flag.severity]}`}
-                    >
-                      {flag.severity}
-                    </span>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className={`chip ${SEVERITY_STYLES[flag.severity]}`}>{flag.severity}</span>
                     <span className="font-medium">
                       {flag.transaction.normalized_merchant ?? flag.transaction.raw_merchant}
                     </span>
-                    <span className="text-sm text-zinc-500">
+                    <span className="text-sm text-muted">
                       {flag.transaction.category ?? "uncategorized"}
                     </span>
                   </div>
-                  <p className="mt-0.5 text-sm text-zinc-500">
+                  <p className="mt-1 text-sm text-muted tabular-nums">
                     {flag.transaction.date} · {formatMoney(flag.transaction.amount)}
                   </p>
                 </div>
                 <button
                   onClick={() => handleDismiss(flag)}
-                  className="shrink-0 rounded-full border border-black/[.12] px-3 py-1 text-xs hover:bg-black/[.04] dark:border-white/[.2] dark:hover:bg-white/[.08]"
+                  className="btn btn-ghost btn-sm shrink-0"
                 >
                   Dismiss
                 </button>
               </div>
 
-              <ul className="mt-3 space-y-1 border-t border-black/[.05] pt-3 text-sm dark:border-white/[.06]">
+              <ul className="mt-3 space-y-1 border-t border-border pt-3 text-sm">
                 {flag.driving_features.map((d, i) => (
                   <li key={i} className="flex items-baseline gap-2">
-                    <span className="text-zinc-400" aria-hidden>
+                    <span className="text-brand" aria-hidden>
                       •
                     </span>
                     <span>{d.explanation}</span>
                     {d.z_score !== null && (
-                      <span className="text-xs text-zinc-400">({d.z_score}σ)</span>
+                      <span className="text-xs text-muted">({d.z_score}σ)</span>
                     )}
                   </li>
                 ))}
