@@ -95,7 +95,7 @@ npm run dev                          # http://localhost:3000
 
 ## 3. Tests
 
-### Backend (~140 tests, needs a running Postgres)
+### Backend (~146 tests, needs a running Postgres)
 
 ```bash
 cd backend
@@ -174,6 +174,24 @@ then restart the backend.
 
 ---
 
+## 8. Deploy to production
+
+A separate compose file runs the whole stack behind Caddy (auto-HTTPS) on
+one server. Full runbook: **[DEPLOY.md](./DEPLOY.md)**. Short version, on
+the server:
+
+```bash
+cp .env.prod.example .env.prod        # set DOMAIN, POSTGRES_PASSWORD, JWT_SECRET_KEY
+./deploy/deploy.sh                    # build + migrate + start
+
+# validate the compose file without running it
+docker compose --env-file .env.prod -f docker-compose.prod.yml config
+```
+
+`.env.prod` is gitignored — never commit real secrets.
+
+---
+
 ## Quick reference
 
 | I want to… | Command |
@@ -185,3 +203,4 @@ then restart the backend.
 | Backend tests | `cd backend && uv run pytest` |
 | Frontend build/type-check | `cd frontend && npm run build` |
 | Full reset | `docker compose down -v` |
+| Deploy to a server | `./deploy/deploy.sh` (see DEPLOY.md) |

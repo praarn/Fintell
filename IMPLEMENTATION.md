@@ -1092,6 +1092,13 @@ Tailwind v4. `NEXT_PUBLIC_API_BASE_URL` (default `http://localhost:8000`).
   no user.
 - **`lib/endpoints.ts`** — one typed function per backend endpoint.
 - **`lib/types.ts`** — hand-written TS mirrors of the response schemas.
+- **App shell** (`app/layout.tsx` + `components/sidebar.tsx`): a grouped
+  left sidebar on `lg+`, a scrollable top bar below it, both derived from
+  one `NAV` array and hidden until a user is present.
+- **Design system** — entirely in `app/globals.css`: CSS custom properties
+  for a light and a dark palette, `@theme inline` tokens, and component
+  classes (`.card` / `.btn` / `.kpi` / `.table` / `.page-head` /
+  `.sidebar`). Pages compose these; restyling is a token edit.
 - **Pages** (`app/<route>/page.tsx`): `login`, `register`, `/` (redirect),
   `dashboard` (KPIs, trend + category charts, recent activity),
   `transactions` (filters, recategorize, split modal),
@@ -1110,7 +1117,7 @@ Tailwind v4. `NEXT_PUBLIC_API_BASE_URL` (default `http://localhost:8000`).
 
 ## 16. Testing strategy
 
-**~150 tests**, `pytest` + `pytest-asyncio` (`asyncio_mode = "auto"`),
+**~146 tests**, `pytest` + `pytest-asyncio` (`asyncio_mode = "auto"`),
 run against a **real Postgres** (`<db>_test`, created on demand). CI
 provides it as a service container.
 
@@ -1168,12 +1175,23 @@ and all HTTP flows run for real.
   then project), `CMD uv run uvicorn app.main:app --host 0.0.0.0 --port
   8000`.
 - **`frontend/Dockerfile`** — multi-stage `node:24-slim`: `npm ci` →
-  `next build` → runner with `npm start`.
-- **`docker-compose.yml`** — `postgres:16-alpine` (healthchecked, named
-  volume), `backend` (waits for pg healthy; bind-mounts `./backend` +
-  a named volume for `.venv`), `frontend` (depends on backend). Compose
-  does **not** run migrations — do `docker compose exec backend uv run
-  alembic upgrade head` after first `up`.
+  `next build` → runner with `npm start`. Takes
+  `NEXT_PUBLIC_API_BASE_URL` as a build arg (inlined into the client
+  bundle at build time); empty → the `http://localhost:8000` fallback.
+- **`docker-compose.yml`** (dev) — `postgres:16-alpine` (healthchecked,
+  named volume), `backend` (waits for pg healthy; bind-mounts `./backend`
+  + a named volume for `.venv`; its `command` runs `alembic upgrade head`
+  before uvicorn so a bare `docker compose up` works end to end),
+  `frontend` (depends on backend).
+- **`docker-compose.prod.yml` + `deploy/`** — the production stack:
+  `postgres` (named volume, unpublished), `backend` (migrates on start,
+  `backend_uploads` volume), `frontend` (built with the public API URL),
+  and **Caddy** as the only published service. `deploy/Caddyfile` serves
+  the frontend at `/` and `handle_path /api/*` strips the prefix and
+  proxies to the backend — one origin, no CORS, one auto-renewed TLS
+  cert. Secrets come from a gitignored `.env.prod` (`.env.prod.example`
+  is the template); `deploy/deploy.sh` builds + migrates + restarts.
+  Full runbook: [`DEPLOY.md`](./DEPLOY.md).
 
 ### CI — `.github/workflows/ci.yml`
 Three jobs on push/PR:

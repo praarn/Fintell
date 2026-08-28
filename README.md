@@ -22,8 +22,9 @@ the test strategy — see **[IMPLEMENTATION.md](./IMPLEMENTATION.md)**.
 - **Backend:** FastAPI, Pydantic v2, SQLAlchemy 2 (async), managed with `uv`
 - **Database:** PostgreSQL (no pgvector — see "text-to-SQL, not RAG" below)
 - **ML:** scikit-learn `IsolationForest` for anomaly detection
-- **Infra:** Docker Compose, Alembic migrations, GitHub Actions (lint → pytest
-  with a Postgres service → frontend build → `docker compose build`)
+- **Infra:** Docker Compose (dev + a production file behind Caddy), Alembic
+  migrations, GitHub Actions (lint → pytest with a Postgres service → frontend
+  build → `docker compose build`)
 
 ## Local development
 
@@ -40,13 +41,22 @@ cd frontend && cp .env.local.example .env.local && npm install && npm run dev
 ```
 
 Or the whole stack: `docker compose up --build` (backend on :8000, frontend on
-:3000). The seed script creates `demo@fintell.app` / `demo-password-123` with six
-months of synthetic transactions across three "banks" in three different
-statement layouts. All seed data is generated — no real financial data.
+:3000, migrations run automatically). The seed script creates
+`demo@fintell.app` / `demo-password-123` with six months of synthetic
+transactions across three "banks" in three different statement layouts. All seed
+data is generated — no real financial data.
 
 ```bash
-cd backend && uv run pytest        # ~150 tests, needs a local Postgres
+cd backend && uv run pytest        # ~146 tests, needs a local Postgres
 ```
+
+Every command — Docker and local — is collected in **[commands.md](./commands.md)**.
+
+## Deployment
+
+A production compose file runs the whole stack behind Caddy (automatic HTTPS) on
+a single server: `./deploy/deploy.sh` after filling in `.env.prod`. Full runbook
+in **[DEPLOY.md](./DEPLOY.md)**.
 
 ## Architecture decisions
 
