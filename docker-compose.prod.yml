@@ -5,6 +5,10 @@
 # Only Caddy publishes ports (80/443). Everything else talks over the
 # internal network. See DEPLOY.md.
 
+# Its own project name so prod volumes/network never collide with the dev
+# `docker-compose.yml` if both are ever run from the same checkout.
+name: fintell-prod
+
 services:
   postgres:
     image: postgres:16-alpine

@@ -114,6 +114,20 @@ gunzip -c fintell-2026-01-01.sql.gz | dc exec -T postgres psql -U finance financ
 
 Copy the dumps off the server (another host, object storage) on a schedule.
 
+### Troubleshooting
+
+- **`password authentication failed for user "finance"`** — Postgres only
+  applies `POSTGRES_PASSWORD` when it *initialises* an empty data
+  directory. If you changed the password after the first deploy, the
+  `postgres_data` volume still has the old one. Either set it back, or
+  change it in-place: `dc exec postgres psql -U finance -c "ALTER USER
+  finance PASSWORD 'new-one';"` and update `.env.prod` to match.
+- **Certificate not issued** — Caddy needs the domain's DNS to resolve to
+  this server *and* inbound 80/443 open before Let's Encrypt will
+  validate. Check `dc logs caddy`.
+- **Port 80/443 already in use** — another web server (nginx, Apache, a
+  stray container) is bound. Stop it; only Caddy should hold those ports.
+
 ### Notes & limitations
 
 - **Uploaded files** are stored on disk in the `backend_uploads` volume —
