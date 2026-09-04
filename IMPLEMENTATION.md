@@ -258,7 +258,7 @@ finance-app/
 │       ├── schemas/           Pydantic request/response models
 │       ├── api/               8 routers (thin — HTTP concerns only)
 │       └── services/          all business logic
-│           ├── parsing/       Tier 1 pipeline (16 modules)
+│           ├── parsing/       Tier 1 pipeline (14 modules)
 │           ├── categorization/  Tier 2/3 + promotion + seed data
 │           ├── anomaly/       features, detector, orchestration
 │           └── text_to_sql/   templates, llm_selector, service
