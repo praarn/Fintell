@@ -256,7 +256,7 @@ finance-app/
 │       ├── core/              config, database, security, rate_limit
 │       ├── models/            14 SQLAlchemy models
 │       ├── schemas/           Pydantic request/response models
-│       ├── api/               10 routers (thin — HTTP concerns only)
+│       ├── api/               8 routers (thin — HTTP concerns only)
 │       └── services/          all business logic
 │           ├── parsing/       Tier 1 pipeline (16 modules)
 │           ├── categorization/  Tier 2/3 + promotion + seed data
@@ -511,7 +511,7 @@ Append-only security trail.
 ## 5. Application wiring and request lifecycle
 
 - **`app/main.py`** creates the `FastAPI` app, adds `CORSMiddleware`
-  restricted to `FRONTEND_ORIGIN` with credentials, and registers ten
+  restricted to `FRONTEND_ORIGIN` with credentials, and registers eight
   routers: health, auth, statements, transactions, accounts, admin,
   anomalies, ask.
 - **`app/core/config.py`** — a single `pydantic_settings.BaseSettings`
