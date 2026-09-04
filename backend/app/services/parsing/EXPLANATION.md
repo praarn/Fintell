@@ -64,6 +64,7 @@ pipeline.parse_statement(db, statement, file_bytes)          ← the only entry 
 | `grid_parser.py` | shared: cell grid + role map + date format → `ParsedRow`s |
 | `text_utils.py` | cell normalisation, amount/date coercion |
 | `types.py` | `ParsedRow`, `UnresolvableStructureError`, reason codes |
+| `constants.py` | `ROLE_SYNONYMS` (the header-word lists column_classifier fuzzy-matches against), `HEADER_SYNONYM_MATCH_THRESHOLD` (85.0) / `PROFILE_REVALIDATION_MATCH_THRESHOLD` (95.0), the `ParseFailure.reason_code` string constants, `MAX_HEADER_SCAN_ROWS` / `DTYPE_SAMPLE_SIZE` |
 
 ## Notes
 

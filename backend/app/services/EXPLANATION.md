@@ -82,7 +82,7 @@ metrics_service.py      the live "cost-aware design works" numbers behind
 ## How a statement flows through here
 
 ```
-POST /statements (api/statements.py)
+POST /statements/upload (api/statements.py)
   → parsing/pipeline.parse_statement          Tier 1  → Transaction rows
   → categorization/service.categorize_...      Tier 2  → most rows categorized
   → categorization/tier3 (Phase 4, batched)    Tier 3  → the rest, via LLM

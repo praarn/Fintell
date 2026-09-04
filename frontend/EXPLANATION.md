@@ -37,7 +37,8 @@ src/
   lib/
     api.ts            apiRequest<T>(): bearer injection, query building,
                       single shared in-flight 401 refresh + one retry
-    auth-context.tsx  current-user context; useRequireAuth() redirects
+    auth-context.tsx  current-user context (login/register/logout)
+    use-require-auth.ts  useRequireAuth() — redirects to /login post-hydration
     endpoints.ts      one typed function per backend route
     types.ts          hand-written mirrors of the response schemas
     config.ts         API base URL (NEXT_PUBLIC_API_BASE_URL || localhost)
